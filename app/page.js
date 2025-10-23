@@ -109,7 +109,7 @@ export default function App() {
                 </div>
                 <CardTitle>Outcome-Focused</CardTitle>
                 <CardDescription>
-                  Every course and service is designed around one goal: increasing your income while reducing your workload.
+                  Every course and service is designed around one goal: leveraging AI to increase your income while reducing your workload.
                 </CardDescription>
               </CardHeader>
             </Card>
