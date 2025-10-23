@@ -243,24 +243,16 @@ export async function GET(request) {
         );
       }
 
-      // For demo, return a JSON file with course info
-      // In production, this would redirect to the actual ZIP file from Vercel Blob
-      const demoContent = JSON.stringify({
-        courseName: course.title,
-        message: 'This is a demo download. In production, this would be a ZIP file with course materials.',
-        modules: course.modules,
-        includes: course.whatsIncluded,
-        downloadedAt: new Date().toISOString(),
-        orderId: verification.orderId
-      }, null, 2);
+      // Check if course has download URL
+      if (!course.downloadUrl) {
+        return NextResponse.json(
+          { success: false, error: 'Course file not available. Please contact support.' },
+          { status: 404, headers: corsHeaders }
+        );
+      }
 
-      return new NextResponse(demoContent, {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-          'Content-Disposition': `attachment; filename="${course.slug}-course-materials.json"`,
-        }
-      });
+      // Redirect to the actual Vercel Blob file
+      return NextResponse.redirect(course.downloadUrl, 302);
     }
 
     return NextResponse.json(
