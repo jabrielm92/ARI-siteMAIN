@@ -20,6 +20,11 @@ export default function CourseCard({ course }) {
             Featured
           </Badge>
         )}
+        {course.comingSoon && (
+          <Badge className="absolute top-4 left-4 bg-yellow-500 text-yellow-900">
+            Coming Soon
+          </Badge>
+        )}
       </div>
       
       <CardHeader>
