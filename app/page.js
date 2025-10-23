@@ -121,7 +121,7 @@ export default function App() {
                 </div>
                 <CardTitle>Proven Results</CardTitle>
                 <CardDescription>
-                  Our systems have generated over $2M in revenue for our clients and saved thousands of hours.
+                  Our AI-powered systems have generated over $2M in revenue for our clients and saved thousands of hours through intelligent automation.
                 </CardDescription>
               </CardHeader>
             </Card>
