@@ -7,7 +7,14 @@ import { generateDownloadToken, verifyDownloadToken } from '@/lib/download-link'
 import { Resend } from 'resend';
 import { put } from '@vercel/blob';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend to avoid build-time errors
+let resendClient = null;
+function getResendClient() {
+  if (!resendClient && process.env.RESEND_API_KEY) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
 
 // CORS headers
 const corsHeaders = {
