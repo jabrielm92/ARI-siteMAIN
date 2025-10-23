@@ -354,11 +354,11 @@ export default function AIReceptionistPage() {
             <div className="space-y-6">
               {[
                 {
-                  q: 'Will customers know they're talking to AI?',
-                  a: 'Our AI is designed to sound natural and human-like. Most callers don\'t realize they\'re speaking with AI. However, we can configure it to disclose if required by your industry.'
+                  q: 'Will customers know they are talking to AI?',
+                  a: 'Our AI is designed to sound natural and human-like. Most callers do not realize they are speaking with AI. However, we can configure it to disclose if required by your industry.'
                 },
                 {
-                  q: 'What happens if the AI can\'t answer a question?',
+                  q: 'What happens if the AI cannot answer a question?',
                   a: 'The AI is trained to recognize when it needs human help. It can transfer calls to your team, take a message, or schedule a callback—whatever you prefer.'
                 },
                 {
