@@ -422,7 +422,7 @@ export async function POST(request) {
       }
 
       if (email) {
-        const q = query(collection(db, 'orders'), where('email', '==', email));
+        const q = query(collection(getDB(), 'orders'), where('email', '==', email));
         const querySnapshot = await getDocs(q);
         
         const orders = [];
