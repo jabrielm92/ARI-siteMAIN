@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
+import { db as getDB } from '@/lib/firebase';
 import { collection, addDoc, getDoc, doc, updateDoc, query, where, getDocs, increment } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import { coursesData } from '@/lib/courses-data';
