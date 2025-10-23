@@ -44,6 +44,11 @@ export default function App() {
                   <Link href="/contact">Book a Free Call</Link>
                 </Button>
               </div>
+              <div className="mt-6">
+                <Button size="lg" variant="outline" className="border-gray-600 text-gray-900 hover:bg-gray-100" asChild>
+                  <Link href="/contact">Book Consultation</Link>
+                </Button>
+              </div>
               
               <div className="flex items-center gap-8 mt-12">
                 <div>
