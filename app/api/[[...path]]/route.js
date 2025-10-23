@@ -55,6 +55,12 @@ async function paypalRequest(path, method = 'GET', body = null) {
 // Send email with download link
 async function sendDownloadEmail(email, orderData, downloadLink) {
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      console.error('Resend client not initialized - email not sent');
+      return { success: false, error: 'Email service not configured' };
+    }
+    
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: email,
