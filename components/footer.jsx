@@ -45,7 +45,7 @@ export default function Footer() {
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                <span>hello@arisolutions.com</span>
+                <span>arisolutionsinc@gmail.com</span>
               </div>
             </div>
           </div>
