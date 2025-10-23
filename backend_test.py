@@ -113,22 +113,22 @@ class ARIBackendTester:
                     
                     if not missing_fields:
                         self.log_result(
-                            "GET /api/courses/course-001",
+                            "GET /api/courses/{slug}",
                             True,
-                            "Successfully retrieved course-001 with all required fields",
-                            f"Title: {course.get('title')}, Price: ${course.get('price')}, Size: {course.get('sizeMb')}MB"
+                            "Successfully retrieved course by slug with all required fields",
+                            f"ID: {course.get('id')}, Title: {course.get('title')}, Price: ${course.get('price')}, Size: {course.get('sizeMb')}MB"
                         )
                     else:
                         self.log_result(
-                            "GET /api/courses/course-001",
+                            "GET /api/courses/{slug}",
                             False,
                             f"Missing required fields: {missing_fields}",
                             course
                         )
                 else:
-                    self.log_result("GET /api/courses/course-001", False, "Invalid response format", data)
+                    self.log_result("GET /api/courses/{slug}", False, "Invalid response format", data)
             else:
-                self.log_result("GET /api/courses/course-001", False, f"HTTP {response.status_code}", response.text)
+                self.log_result("GET /api/courses/{slug}", False, f"HTTP {response.status_code}", response.text)
                 
         except Exception as e:
             self.log_result("GET /api/courses/course-001", False, f"Exception: {str(e)}")
