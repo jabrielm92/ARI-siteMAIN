@@ -85,7 +85,7 @@ export default function App() {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose ARI Solutions?</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We're not just teaching theory—we're delivering practical, income-generating systems.
+              We're not just teaching AI theory—we're delivering practical, AI-powered income systems.
             </p>
           </div>
           
