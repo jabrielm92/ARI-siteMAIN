@@ -97,7 +97,7 @@ export default function App() {
                 </div>
                 <CardTitle>Build or Buy</CardTitle>
                 <CardDescription>
-                  Learn to build automation systems yourself with our courses, or have our team build them for you.
+                  Learn to build AI-powered systems yourself with our courses, or have our expert team implement them for you.
                 </CardDescription>
               </CardHeader>
             </Card>
