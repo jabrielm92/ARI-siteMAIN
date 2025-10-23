@@ -382,13 +382,13 @@ export default function ResourcesPage() {
             Whether you want to learn or let us handle it, we're here to help you succeed
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-teal-600 hover:bg-gray-100" asChild>
+            <Button size="lg" className="bg-white text-black hover:bg-gray-100" asChild>
               <a href="/courses">
                 <BookOpen className="w-5 h-5 mr-2" />
                 Browse Courses
               </a>
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
+            <Button size="lg" className="bg-white text-black hover:bg-gray-100" asChild>
               <a href="/solutions">
                 <Users className="w-5 h-5 mr-2" />
                 Explore Services
