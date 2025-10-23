@@ -8,18 +8,21 @@ export default function PayPalButton({ courseId, amount, onSuccess, onError }) {
   const paypalRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sdkLoaded, setSdkLoaded] = useState(false);
   const router = useRouter();
 
+  // Load PayPal SDK
   useEffect(() => {
-    // Load PayPal SDK
     if (window.paypal) {
-      initializePayPal();
+      setSdkLoaded(true);
       return;
     }
 
     const script = document.createElement('script');
     script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=USD&intent=capture`;
-    script.addEventListener('load', initializePayPal);
+    script.addEventListener('load', () => {
+      setSdkLoaded(true);
+    });
     script.addEventListener('error', () => {
       setError('Failed to load PayPal SDK');
       setLoading(false);
@@ -31,7 +34,16 @@ export default function PayPalButton({ courseId, amount, onSuccess, onError }) {
         script.parentNode.removeChild(script);
       }
     };
-  }, [courseId]);
+  }, []);
+
+  // Initialize PayPal Buttons when SDK is loaded and ref is ready
+  useEffect(() => {
+    if (!sdkLoaded || !paypalRef.current) {
+      return;
+    }
+
+    initializePayPal();
+  }, [sdkLoaded, courseId]);
 
   const initializePayPal = () => {
     if (!window.paypal) {
@@ -42,8 +54,6 @@ export default function PayPalButton({ courseId, amount, onSuccess, onError }) {
 
     if (!paypalRef.current) {
       console.error('PayPal container ref not available');
-      setError('Payment container not ready');
-      setLoading(false);
       return;
     }
 
