@@ -232,6 +232,7 @@ class DownloadFlowTester:
                         has_download_url = course.get('downloadUrl')
                         has_size_mb = course.get('sizeMb')
                         has_price = course.get('price')
+                        is_coming_soon = course.get('comingSoon', False)
                         
                         if has_download_url and has_size_mb and has_price:
                             downloadable_courses.append({
@@ -241,7 +242,8 @@ class DownloadFlowTester:
                                 'sizeMb': has_size_mb,
                                 'price': has_price
                             })
-                        else:
+                        elif not is_coming_soon:
+                            # Only report as issue if not marked as coming soon
                             missing = []
                             if not has_download_url:
                                 missing.append('downloadUrl')
