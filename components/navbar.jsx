@@ -75,7 +75,7 @@ export default function Navbar() {
             ))}
             <div className="pt-4 pb-2 px-3">
               <Button asChild className="w-full">
-                <Link href="/contact">Book a Call</Link>
+                <a href="https://calendly.com/arisolutionsinc/30min" target="_blank" rel="noopener noreferrer">Book a Call</a>
               </Button>
             </div>
           </div>
