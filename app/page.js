@@ -46,7 +46,7 @@ export default function App() {
               </div>
               <div className="mt-6">
                 <Button size="lg" variant="outline" className="border-gray-600 text-gray-900 hover:bg-gray-100" asChild>
-                  <Link href="/contact">Book Consultation</Link>
+                  <a href="https://calendly.com/arisolutionsinc/30min" target="_blank" rel="noopener noreferrer">Book Consultation</a>
                 </Button>
               </div>
               
