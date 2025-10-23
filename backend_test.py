@@ -305,7 +305,7 @@ class ARIBackendTester:
             
             endpoints_to_test = [
                 ("GET", "/courses", "List courses"),
-                ("GET", "/courses/course-001", "Get specific course"),
+                ("GET", "/courses/how-to-make-money-with-ai", "Get specific course by slug"),
                 ("POST", "/paypal/create-order", "Create PayPal order"),
                 ("POST", "/paypal/capture", "Capture PayPal payment"),
                 ("POST", "/orders/lookup", "Lookup orders"),
