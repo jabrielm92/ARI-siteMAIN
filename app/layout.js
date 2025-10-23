@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Next.js MongoDB Template',
-  description: 'A simple template with App Router, MongoDB, and shadcn/ui',
+  title: 'ARI Solutions Inc - AI-Powered Business Automation',
+  description: 'Leverage AI to build income-generating systems. Learn with our courses or let us implement AI automations for you.',
 }
 
 export default function RootLayout({ children }) {
