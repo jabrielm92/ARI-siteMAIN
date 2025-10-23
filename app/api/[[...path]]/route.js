@@ -381,7 +381,7 @@ export async function POST(request) {
         updatedAt: new Date().toISOString()
       };
 
-      const docRef = await addDoc(collection(db, 'orders'), orderData);
+      const docRef = await addDoc(collection(getDB(), 'orders'), orderData);
       const firestoreOrderId = docRef.id;
 
       // Generate download token
