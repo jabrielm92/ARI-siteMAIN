@@ -238,21 +238,11 @@ export default function CourseDetailPage() {
                     <p className="text-sm text-muted-foreground">One-time payment. Lifetime access.</p>
                   </div>
 
-                  {!showPayment ? (
-                    <button
-                      onClick={() => setShowPayment(true)}
-                      className="w-full py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md font-semibold transition-colors mb-4"
-                    >
-                      Buy with PayPal
-                    </button>
-                  ) : (
-                    <div className="mb-4">
-                      <PayPalButton
-                        courseId={course.id}
-                        amount={course.price}
-                      />
-                    </div>
-                  )}
+                  <Button asChild className="w-full" size="lg">
+                    <Link href={`/checkout/${course.id}`}>
+                      Proceed to Checkout
+                    </Link>
+                  </Button>
 
                   <p className="text-xs text-center text-muted-foreground mb-6">
                     30-day money-back guarantee
