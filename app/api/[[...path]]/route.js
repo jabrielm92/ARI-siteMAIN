@@ -228,7 +228,7 @@ export async function GET(request) {
       }
 
       // Increment download attempts
-      await updateDoc(doc(db, 'orders', verification.orderId), {
+      await updateDoc(doc(getDB(), 'orders', verification.orderId), {
         downloadAttempts: increment(1),
         lastDownloadAt: new Date().toISOString()
       });
