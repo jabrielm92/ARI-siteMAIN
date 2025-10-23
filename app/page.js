@@ -29,10 +29,10 @@ export default function App() {
                 Automation-Ready Income Solutions
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                Build Income-Generating Systems That Work While You Sleep
+                Leverage AI to Build Income-Generating Systems
               </h1>
               <p className="text-xl text-gray-300 mb-8">
-                Learn to automate your business with proven systems, or let us build them for you. From appointment booking to lead generation—we help you scale without scaling your workload.
+                Learn to build AI-powered businesses with our courses, or let us implement AI automations for you. From appointment booking to lead generation—we help you leverage AI to increase revenue without scaling your workload.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="bg-teal-500 hover:bg-teal-600 text-white" asChild>
