@@ -237,15 +237,32 @@ export default function CourseDetailPage() {
                     <p className="text-sm text-muted-foreground">One-time payment. Lifetime access.</p>
                   </div>
 
-                  <Button asChild className="w-full" size="lg">
-                    <Link href={`/checkout/${course.id}`}>
-                      Proceed to Checkout
-                    </Link>
-                  </Button>
-
-                  <p className="text-xs text-center text-muted-foreground mb-6">
-                    30-day money-back guarantee
-                  </p>
+                  {course.comingSoon ? (
+                    <div className="space-y-4">
+                      <Button disabled className="w-full" size="lg">
+                        Coming Soon
+                      </Button>
+                      <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-lg">
+                        <p className="text-sm font-semibold text-yellow-700 dark:text-yellow-400 mb-1">
+                          Course In Development
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          This course is currently being created. Sign up for our newsletter to be notified when it launches!
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <Button asChild className="w-full" size="lg">
+                        <Link href={`/checkout/${course.id}`}>
+                          Proceed to Checkout
+                        </Link>
+                      </Button>
+                      <p className="text-xs text-center text-muted-foreground mb-6">
+                        30-day money-back guarantee
+                      </p>
+                    </>
+                  )}
 
                   <div className="border-t border-border pt-6">
                     <h3 className="font-semibold mb-4">This course includes:</h3>
