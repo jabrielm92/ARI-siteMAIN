@@ -45,7 +45,7 @@ export default function Navbar() {
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
             <Button asChild>
-              <Link href="/contact">Book a Call</Link>
+              <a href="https://calendly.com/arisolutionsinc/30min" target="_blank" rel="noopener noreferrer">Book a Call</a>
             </Button>
           </div>
 
