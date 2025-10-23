@@ -96,13 +96,13 @@ class ARIBackendTester:
         except Exception as e:
             self.log_result("GET /api/courses", False, f"Exception: {str(e)}")
     
-    def test_course_by_id(self):
-        """Test 2: Get Course by ID - GET /api/courses/course-001"""
+    def test_course_by_slug(self):
+        """Test 2: Get Course by Slug - GET /api/courses/how-to-make-money-with-ai"""
         try:
-            print("\n=== Testing Course by ID API ===")
+            print("\n=== Testing Course by Slug API ===")
             
-            # Test GET /api/courses/course-001
-            response = self.session.get(f"{API_BASE}/courses/course-001")
+            # Test GET /api/courses/how-to-make-money-with-ai (course-001 slug)
+            response = self.session.get(f"{API_BASE}/courses/how-to-make-money-with-ai")
             
             if response.status_code == 200:
                 data = response.json()
