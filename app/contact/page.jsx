@@ -20,15 +20,33 @@ export default function ContactPage() {
   });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In production, this would send to an API
-    console.log('Form submitted:', formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 3000);
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          setFormData({ name: '', email: '', subject: '', message: '' });
+        }, 5000);
+      } else {
+        alert('Failed to send message. Please email us directly at arisolutionsinc@gmail.com');
+      }
+    } catch (error) {
+      console.error('Form error:', error);
+      alert('Failed to send message. Please email us directly at arisolutionsinc@gmail.com');
+    }
   };
 
   const handleChange = (e) => {
