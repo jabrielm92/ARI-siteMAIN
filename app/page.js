@@ -144,9 +144,9 @@ export default function App() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {servicesData.map((service) => (
-              <Card key={service.id} className="group hover:shadow-xl transition-all">
+              <Card key={service.id} className="group hover:shadow-xl transition-all flex flex-col">
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={service.heroImage}
@@ -159,8 +159,8 @@ export default function App() {
                   <CardTitle>{service.name}</CardTitle>
                   <CardDescription className="text-base">{service.tagline}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-6">{service.description}</p>
+                <CardContent className="flex-1 flex flex-col">
+                  <p className="text-muted-foreground mb-6 flex-1">{service.description}</p>
                   <Button asChild className="w-full">
                     <Link href={`/solutions/${service.slug}`}>
                       Learn More <ArrowRight className="ml-2 w-4 h-4" />
