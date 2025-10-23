@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { coursesData } from '@/lib/courses-data';
 
+export const runtime = 'nodejs'; // ensure node runtime for server-side libs like @vercel/blob
+
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -23,7 +25,7 @@ export async function POST(request) {
     }
 
     // Verify course exists
-    const course = coursesData.find(c => c.id === courseId);
+    const course = coursesData.find((c) => c.id === courseId);
     if (!course) {
       return NextResponse.json(
         { success: false, error: `Course ${courseId} not found` },
@@ -42,20 +44,13 @@ export async function POST(request) {
       url: blob.url,
       courseId: courseId,
       courseName: course.title,
-      size: file.size
+      size: file.size,
     });
-
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: (error && error.message) || String(error) },
       { status: 500 }
     );
   }
 }
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
