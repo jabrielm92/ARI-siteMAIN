@@ -447,7 +447,7 @@ class ARIBackendTester:
         
         # Run all tests
         self.test_courses_api()
-        self.test_course_by_id()
+        self.test_course_by_slug()
         self.test_create_test_order_direct()
         self.test_order_lookup_nonexistent()
         self.test_download_invalid_token()
