@@ -168,7 +168,7 @@ export async function GET(request) {
     if (path.startsWith('/orders/')) {
       const orderId = path.replace('/orders/', '');
       
-      const orderDoc = await getDoc(doc(db, 'orders', orderId));
+      const orderDoc = await getDoc(doc(getDB(), 'orders', orderId));
       
       if (!orderDoc.exists()) {
         return NextResponse.json(
@@ -406,7 +406,7 @@ export async function POST(request) {
       const { email, orderId } = body;
 
       if (orderId) {
-        const orderDoc = await getDoc(doc(db, 'orders', orderId));
+        const orderDoc = await getDoc(doc(getDB(), 'orders', orderId));
         
         if (!orderDoc.exists()) {
           return NextResponse.json(
