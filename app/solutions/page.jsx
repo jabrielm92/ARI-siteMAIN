@@ -34,9 +34,9 @@ export default function SolutionsPage() {
       {/* Solutions Grid */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {servicesData.map((service) => (
-              <Card key={service.id} className="group hover:shadow-2xl transition-all overflow-hidden">
+              <Card key={service.id} className="group hover:shadow-2xl transition-all overflow-hidden flex flex-col">
                 <div className="relative h-64 overflow-hidden">
                   <img
                     src={service.heroImage}
