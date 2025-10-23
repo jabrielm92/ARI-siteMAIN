@@ -15,8 +15,6 @@ import { coursesData } from '@/lib/courses-data';
 
 export default function CourseDetailPage() {
   const params = useParams();
-  const [showPayment, setShowPayment] = useState(false);
-  
   const course = coursesData.find(c => c.slug === params.slug);
 
   if (!course) {
