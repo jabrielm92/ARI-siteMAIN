@@ -40,6 +40,13 @@ export default function PayPalButton({ courseId, amount, onSuccess, onError }) {
       return;
     }
 
+    if (!paypalRef.current) {
+      console.error('PayPal container ref not available');
+      setError('Payment container not ready');
+      setLoading(false);
+      return;
+    }
+
     setLoading(false);
 
     window.paypal.Buttons({
