@@ -64,11 +64,17 @@ export default function CourseCard({ course }) {
       </CardContent>
       
       <CardFooter>
-        <Button asChild className="w-full" size="lg">
-          <Link href={`/courses/${course.slug}`}>
-            View Details
-          </Link>
-        </Button>
+        {course.comingSoon ? (
+          <Button disabled className="w-full" size="lg">
+            Coming Soon
+          </Button>
+        ) : (
+          <Button asChild className="w-full" size="lg">
+            <Link href={`/courses/${course.slug}`}>
+              View Details
+            </Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
