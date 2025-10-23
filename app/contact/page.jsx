@@ -154,7 +154,7 @@ export default function ContactPage() {
                   <Mail className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <p className="font-semibold">Email</p>
-                    <p className="text-sm text-muted-foreground">hello@arisolutions.com</p>
+                    <p className="text-sm text-muted-foreground">arisolutionsinc@gmail.com</p>
                   </div>
                 </div>
                 
