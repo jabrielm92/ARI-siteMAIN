@@ -19,7 +19,8 @@ export default function LeadGenPage() {
     currentCloseRate: '',
     avgCustomerValue: '',
     leadsPerMonth: '',
-    expectedImprovement: '40'
+    currentAdSpend: '',
+    additionalLeads: '30'
   });
 
   const handleInputChange = (field, value) => {
@@ -34,27 +35,33 @@ export default function LeadGenPage() {
     const closeRate = parseFloat(calculatorInputs.currentCloseRate) || 0;
     const customerValue = parseFloat(calculatorInputs.avgCustomerValue) || 0;
     const leadsPerMonth = parseFloat(calculatorInputs.leadsPerMonth) || 0;
-    const improvement = parseFloat(calculatorInputs.expectedImprovement) || 0;
+    const currentAdSpend = parseFloat(calculatorInputs.currentAdSpend) || 0;
+    const additionalLeads = parseFloat(calculatorInputs.additionalLeads) || 0;
 
     // Current metrics
-    const currentMonthlyAdSpend = costPerLead * leadsPerMonth;
     const currentConversions = (leadsPerMonth * closeRate) / 100;
     const currentRevenue = currentConversions * customerValue;
-    const currentROI = currentMonthlyAdSpend > 0 ? ((currentRevenue - currentMonthlyAdSpend) / currentMonthlyAdSpend) * 100 : 0;
+    const currentROI = currentAdSpend > 0 ? ((currentRevenue - currentAdSpend) / currentAdSpend) * 100 : 0;
 
-    // With ARI Solutions (cheaper leads, better close rate)
-    const newCostPerLead = costPerLead * 0.65; // 35% cost reduction
-    const newCloseRate = closeRate * (1 + improvement / 100);
-    const newMonthlyAdSpend = newCostPerLead * leadsPerMonth;
-    const newConversions = (leadsPerMonth * newCloseRate) / 100;
+    // With ARI Solutions (more leads at better quality and lower cost)
+    const ariCostPerLead = costPerLead * 0.65; // 35% cheaper leads
+    const totalLeads = leadsPerMonth + additionalLeads;
+    const ariLeadCost = additionalLeads * ariCostPerLead;
+    const newAdSpend = currentAdSpend + ariLeadCost;
+    
+    // Better quality leads improve close rate by 30%
+    const improvedCloseRate = closeRate * 1.30;
+    const newConversions = (totalLeads * improvedCloseRate) / 100;
     const newRevenue = newConversions * customerValue;
-    const newROI = newMonthlyAdSpend > 0 ? ((newRevenue - newMonthlyAdSpend) / newMonthlyAdSpend) * 100 : 0;
+    const newROI = newAdSpend > 0 ? ((newRevenue - newAdSpend) / newAdSpend) * 100 : 0;
+    const newCostPerLead = newAdSpend / totalLeads;
 
     // Improvements
     const additionalMonthlyRevenue = newRevenue - currentRevenue;
-    const monthlySavings = currentMonthlyAdSpend - newMonthlyAdSpend;
+    const additionalInvestment = ariLeadCost;
     const annualAdditionalRevenue = additionalMonthlyRevenue * 12;
-    const annualSavings = monthlySavings * 12;
+    const annualInvestment = additionalInvestment * 12;
+    const netAnnualBenefit = annualAdditionalRevenue - annualInvestment;
 
     return {
       current: {
@@ -62,23 +69,27 @@ export default function LeadGenPage() {
         closeRate,
         conversions: currentConversions,
         revenue: currentRevenue,
-        adSpend: currentMonthlyAdSpend,
-        roi: currentROI
+        adSpend: currentAdSpend,
+        roi: currentROI,
+        totalLeads: leadsPerMonth
       },
       new: {
         costPerLead: newCostPerLead,
-        closeRate: newCloseRate,
+        closeRate: improvedCloseRate,
         conversions: newConversions,
         revenue: newRevenue,
-        adSpend: newMonthlyAdSpend,
-        roi: newROI
+        adSpend: newAdSpend,
+        roi: newROI,
+        totalLeads: totalLeads
       },
       improvements: {
         additionalMonthlyRevenue,
-        monthlySavings,
+        additionalInvestment,
         annualAdditionalRevenue,
-        annualSavings,
-        totalAnnualBenefit: annualAdditionalRevenue + annualSavings
+        annualInvestment,
+        netAnnualBenefit,
+        additionalLeads,
+        additionalConversions: newConversions - currentConversions
       }
     };
   };
@@ -116,7 +127,7 @@ export default function LeadGenPage() {
                   Schedule Free Consultation
                 </a>
               </Button>
-              <Button size="lg" variant="outline" className="border-gray-600 text-gray-100 hover:bg-gray-800" asChild>
+              <Button size="lg" variant="outline" className="border-gray-600 text-black hover:bg-gray-800 hover:text-white" asChild>
                 <a href="mailto:arisolutionsinc@gmail.com">
                   <Mail className="w-5 h-5 mr-2" />
                   Email Us
@@ -193,7 +204,7 @@ export default function LeadGenPage() {
               <Badge className="mb-4 bg-teal-500 text-white">ROI Calculator</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">See Your Potential ROI</h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Calculate how much more revenue you could generate with ARI Solutions' lead generation system
+                Calculate how much more revenue you could generate with ARI Solutions bringing you more high-quality leads
               </p>
             </div>
 
@@ -210,6 +221,20 @@ export default function LeadGenPage() {
                       placeholder="150"
                       value={calculatorInputs.currentCostPerLead}
                       onChange={(e) => handleInputChange('currentCostPerLead', e.target.value)}
+                      className="text-lg h-12"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="currentAdSpend" className="text-base font-semibold mb-2 block">
+                      Current Ad Spend / mo ($)
+                    </Label>
+                    <Input
+                      id="currentAdSpend"
+                      type="number"
+                      placeholder="7500"
+                      value={calculatorInputs.currentAdSpend}
+                      onChange={(e) => handleInputChange('currentAdSpend', e.target.value)}
                       className="text-lg h-12"
                     />
                   </div>
@@ -244,7 +269,7 @@ export default function LeadGenPage() {
 
                   <div>
                     <Label htmlFor="leadsPerMonth" className="text-base font-semibold mb-2 block">
-                      Leads Per Month
+                      Current Leads Per Month
                     </Label>
                     <Input
                       id="leadsPerMonth"
@@ -256,20 +281,20 @@ export default function LeadGenPage() {
                     />
                   </div>
 
-                  <div className="md:col-span-2">
-                    <Label htmlFor="expectedImprovement" className="text-base font-semibold mb-2 block">
-                      Expected Close Rate Improvement with ARI (%)
+                  <div>
+                    <Label htmlFor="additionalLeads" className="text-base font-semibold mb-2 block">
+                      Additional Leads ARI Will Bring
                     </Label>
                     <Input
-                      id="expectedImprovement"
+                      id="additionalLeads"
                       type="number"
-                      placeholder="40"
-                      value={calculatorInputs.expectedImprovement}
-                      onChange={(e) => handleInputChange('expectedImprovement', e.target.value)}
+                      placeholder="30"
+                      value={calculatorInputs.additionalLeads}
+                      onChange={(e) => handleInputChange('additionalLeads', e.target.value)}
                       className="text-lg h-12"
                     />
                     <p className="text-sm text-muted-foreground mt-2">
-                      Our clients typically see 30-50% improvement in close rates due to better lead quality and targeting
+                      We bring more qualified leads at 35% lower cost with 30% better close rates
                     </p>
                   </div>
                 </div>
@@ -301,6 +326,10 @@ export default function LeadGenPage() {
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Total Leads</span>
+                            <span className="font-bold">{results.current.totalLeads}</span>
+                          </div>
                           <div className="flex justify-between items-center py-2 border-b">
                             <span className="text-muted-foreground">Cost Per Lead</span>
                             <span className="font-bold">${results.current.costPerLead.toFixed(2)}</span>
@@ -338,22 +367,31 @@ export default function LeadGenPage() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
-                            <span className="text-muted-foreground">Cost Per Lead</span>
+                            <span className="text-muted-foreground">Total Leads</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">
+                              {results.new.totalLeads}
+                              <span className="text-xs ml-1">(+{results.improvements.additionalLeads})</span>
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Avg Cost Per Lead</span>
                             <span className="font-bold text-teal-600 dark:text-teal-400">
                               ${results.new.costPerLead.toFixed(2)}
-                              <span className="text-xs ml-1">(-35%)</span>
                             </span>
                           </div>
                           <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
                             <span className="text-muted-foreground">Close Rate</span>
                             <span className="font-bold text-teal-600 dark:text-teal-400">
                               {results.new.closeRate.toFixed(1)}%
-                              <span className="text-xs ml-1">(+{calculatorInputs.expectedImprovement}%)</span>
+                              <span className="text-xs ml-1">(+30%)</span>
                             </span>
                           </div>
                           <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
                             <span className="text-muted-foreground">Conversions/Month</span>
-                            <span className="font-bold text-teal-600 dark:text-teal-400">{results.new.conversions.toFixed(1)}</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">
+                              {results.new.conversions.toFixed(1)}
+                              <span className="text-xs ml-1">(+{results.improvements.additionalConversions.toFixed(1)})</span>
+                            </span>
                           </div>
                           <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
                             <span className="text-muted-foreground">Monthly Ad Spend</span>
@@ -386,16 +424,25 @@ export default function LeadGenPage() {
                           </div>
                           <div>
                             <div className="text-4xl font-bold mb-2">
-                              ${results.improvements.monthlySavings.toLocaleString()}
+                              ${results.improvements.additionalInvestment.toLocaleString()}
                             </div>
-                            <div className="text-teal-100">Monthly Ad Spend Savings</div>
+                            <div className="text-teal-100">Additional Monthly Investment</div>
                           </div>
                           <div>
                             <div className="text-5xl font-bold mb-2">
-                              ${results.improvements.totalAnnualBenefit.toLocaleString()}
+                              ${results.improvements.netAnnualBenefit.toLocaleString()}
                             </div>
-                            <div className="text-teal-100 font-semibold text-lg">Total Annual Benefit</div>
+                            <div className="text-teal-100 font-semibold text-lg">Net Annual Benefit</div>
                           </div>
+                        </div>
+
+                        <div className="mt-6 pt-6 border-t border-teal-400 text-center">
+                          <p className="text-lg mb-1">
+                            <span className="font-bold text-2xl">+{results.improvements.additionalConversions.toFixed(0)}</span> more customers per month
+                          </p>
+                          <p className="text-teal-100 text-sm">
+                            From {results.improvements.additionalLeads} additional high-quality leads
+                          </p>
                         </div>
 
                         <div className="mt-8 text-center">
@@ -410,7 +457,7 @@ export default function LeadGenPage() {
                     </Card>
 
                     <div className="text-center text-sm text-muted-foreground">
-                      * Results based on typical client performance. Actual results may vary based on industry, market conditions, and campaign execution.
+                      * Results based on typical client performance. ARI leads are 35% cheaper and convert 30% better due to AI-powered targeting and qualification.
                     </div>
                   </div>
                 )}
