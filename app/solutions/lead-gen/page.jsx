@@ -1,14 +1,94 @@
 "use client";
 
+import { useState } from 'react';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle2, Target, Filter, Mail, Database, TrendingUp, Shield, Calendar, Phone, DollarSign, Users, Zap, BarChart, Lock, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Target, Filter, Mail, Database, TrendingUp, Shield, Calendar, Phone, DollarSign, Users, Zap, BarChart, Lock, AlertCircle, Calculator, ArrowRight, TrendingDown } from 'lucide-react';
 
 export default function LeadGenPage() {
+  // ROI Calculator State
+  const [showResults, setShowResults] = useState(false);
+  const [calculatorInputs, setCalculatorInputs] = useState({
+    currentCostPerLead: '',
+    currentCloseRate: '',
+    avgCustomerValue: '',
+    leadsPerMonth: '',
+    expectedImprovement: '40'
+  });
+
+  const handleInputChange = (field, value) => {
+    setCalculatorInputs(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const calculateROI = () => {
+    const costPerLead = parseFloat(calculatorInputs.currentCostPerLead) || 0;
+    const closeRate = parseFloat(calculatorInputs.currentCloseRate) || 0;
+    const customerValue = parseFloat(calculatorInputs.avgCustomerValue) || 0;
+    const leadsPerMonth = parseFloat(calculatorInputs.leadsPerMonth) || 0;
+    const improvement = parseFloat(calculatorInputs.expectedImprovement) || 0;
+
+    // Current metrics
+    const currentMonthlyAdSpend = costPerLead * leadsPerMonth;
+    const currentConversions = (leadsPerMonth * closeRate) / 100;
+    const currentRevenue = currentConversions * customerValue;
+    const currentROI = currentMonthlyAdSpend > 0 ? ((currentRevenue - currentMonthlyAdSpend) / currentMonthlyAdSpend) * 100 : 0;
+
+    // With ARI Solutions (cheaper leads, better close rate)
+    const newCostPerLead = costPerLead * 0.65; // 35% cost reduction
+    const newCloseRate = closeRate * (1 + improvement / 100);
+    const newMonthlyAdSpend = newCostPerLead * leadsPerMonth;
+    const newConversions = (leadsPerMonth * newCloseRate) / 100;
+    const newRevenue = newConversions * customerValue;
+    const newROI = newMonthlyAdSpend > 0 ? ((newRevenue - newMonthlyAdSpend) / newMonthlyAdSpend) * 100 : 0;
+
+    // Improvements
+    const additionalMonthlyRevenue = newRevenue - currentRevenue;
+    const monthlySavings = currentMonthlyAdSpend - newMonthlyAdSpend;
+    const annualAdditionalRevenue = additionalMonthlyRevenue * 12;
+    const annualSavings = monthlySavings * 12;
+
+    return {
+      current: {
+        costPerLead,
+        closeRate,
+        conversions: currentConversions,
+        revenue: currentRevenue,
+        adSpend: currentMonthlyAdSpend,
+        roi: currentROI
+      },
+      new: {
+        costPerLead: newCostPerLead,
+        closeRate: newCloseRate,
+        conversions: newConversions,
+        revenue: newRevenue,
+        adSpend: newMonthlyAdSpend,
+        roi: newROI
+      },
+      improvements: {
+        additionalMonthlyRevenue,
+        monthlySavings,
+        annualAdditionalRevenue,
+        annualSavings,
+        totalAnnualBenefit: annualAdditionalRevenue + annualSavings
+      }
+    };
+  };
+
+  const handleCalculate = () => {
+    setShowResults(true);
+  };
+
+  const results = showResults ? calculateROI() : null;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -101,6 +181,241 @@ export default function LeadGenPage() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ROI Calculator Section */}
+      <section className="py-20 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-teal-500 text-white">ROI Calculator</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">See Your Potential ROI</h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Calculate how much more revenue you could generate with ARI Solutions' lead generation system
+              </p>
+            </div>
+
+            <Card className="shadow-2xl">
+              <CardContent className="p-8">
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <Label htmlFor="currentCostPerLead" className="text-base font-semibold mb-2 block">
+                      Current Cost Per Lead ($)
+                    </Label>
+                    <Input
+                      id="currentCostPerLead"
+                      type="number"
+                      placeholder="150"
+                      value={calculatorInputs.currentCostPerLead}
+                      onChange={(e) => handleInputChange('currentCostPerLead', e.target.value)}
+                      className="text-lg h-12"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="currentCloseRate" className="text-base font-semibold mb-2 block">
+                      Current Lead-to-Close Rate (%)
+                    </Label>
+                    <Input
+                      id="currentCloseRate"
+                      type="number"
+                      placeholder="5"
+                      value={calculatorInputs.currentCloseRate}
+                      onChange={(e) => handleInputChange('currentCloseRate', e.target.value)}
+                      className="text-lg h-12"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="avgCustomerValue" className="text-base font-semibold mb-2 block">
+                      Average Customer Value ($)
+                    </Label>
+                    <Input
+                      id="avgCustomerValue"
+                      type="number"
+                      placeholder="5000"
+                      value={calculatorInputs.avgCustomerValue}
+                      onChange={(e) => handleInputChange('avgCustomerValue', e.target.value)}
+                      className="text-lg h-12"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="leadsPerMonth" className="text-base font-semibold mb-2 block">
+                      Leads Per Month
+                    </Label>
+                    <Input
+                      id="leadsPerMonth"
+                      type="number"
+                      placeholder="50"
+                      value={calculatorInputs.leadsPerMonth}
+                      onChange={(e) => handleInputChange('leadsPerMonth', e.target.value)}
+                      className="text-lg h-12"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <Label htmlFor="expectedImprovement" className="text-base font-semibold mb-2 block">
+                      Expected Close Rate Improvement with ARI (%)
+                    </Label>
+                    <Input
+                      id="expectedImprovement"
+                      type="number"
+                      placeholder="40"
+                      value={calculatorInputs.expectedImprovement}
+                      onChange={(e) => handleInputChange('expectedImprovement', e.target.value)}
+                      className="text-lg h-12"
+                    />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Our clients typically see 30-50% improvement in close rates due to better lead quality and targeting
+                    </p>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleCalculate} 
+                  size="lg" 
+                  className="w-full bg-teal-500 hover:bg-teal-600 text-lg h-14"
+                >
+                  <Calculator className="w-5 h-5 mr-2" />
+                  Calculate My ROI
+                </Button>
+
+                {showResults && results && (
+                  <div className="mt-10 space-y-6 animate-in fade-in duration-500">
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-2">Your ROI Analysis</h3>
+                      <p className="text-muted-foreground">Here's how ARI Solutions can transform your lead generation</p>
+                    </div>
+
+                    {/* Comparison Grid */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Current State */}
+                      <Card className="bg-gray-50 dark:bg-slate-800 border-2">
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <TrendingDown className="w-5 h-5 text-red-500" />
+                            Current State
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Cost Per Lead</span>
+                            <span className="font-bold">${results.current.costPerLead.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Close Rate</span>
+                            <span className="font-bold">{results.current.closeRate.toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Conversions/Month</span>
+                            <span className="font-bold">{results.current.conversions.toFixed(1)}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Monthly Ad Spend</span>
+                            <span className="font-bold">${results.current.adSpend.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Monthly Revenue</span>
+                            <span className="font-bold">${results.current.revenue.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 bg-gray-100 dark:bg-slate-700 px-3 rounded">
+                            <span className="font-semibold">ROI</span>
+                            <span className="font-bold text-xl">{results.current.roi.toFixed(0)}%</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* With ARI Solutions */}
+                      <Card className="bg-teal-50 dark:bg-teal-950 border-2 border-teal-500">
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <TrendingUp className="w-5 h-5 text-teal-500" />
+                            With ARI Solutions
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Cost Per Lead</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">
+                              ${results.new.costPerLead.toFixed(2)}
+                              <span className="text-xs ml-1">(-35%)</span>
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Close Rate</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">
+                              {results.new.closeRate.toFixed(1)}%
+                              <span className="text-xs ml-1">(+{calculatorInputs.expectedImprovement}%)</span>
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Conversions/Month</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">{results.new.conversions.toFixed(1)}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Monthly Ad Spend</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">${results.new.adSpend.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Monthly Revenue</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">${results.new.revenue.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 bg-teal-100 dark:bg-teal-900 px-3 rounded">
+                            <span className="font-semibold">ROI</span>
+                            <span className="font-bold text-xl text-teal-600 dark:text-teal-400">{results.new.roi.toFixed(0)}%</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Key Improvements */}
+                    <Card className="bg-gradient-to-br from-teal-500 to-teal-600 text-white">
+                      <CardHeader>
+                        <CardTitle className="text-2xl text-center">Your Projected Annual Benefit</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-3 gap-6 text-center">
+                          <div>
+                            <div className="text-4xl font-bold mb-2">
+                              ${results.improvements.additionalMonthlyRevenue.toLocaleString()}
+                            </div>
+                            <div className="text-teal-100">Additional Monthly Revenue</div>
+                          </div>
+                          <div>
+                            <div className="text-4xl font-bold mb-2">
+                              ${results.improvements.monthlySavings.toLocaleString()}
+                            </div>
+                            <div className="text-teal-100">Monthly Ad Spend Savings</div>
+                          </div>
+                          <div>
+                            <div className="text-5xl font-bold mb-2">
+                              ${results.improvements.totalAnnualBenefit.toLocaleString()}
+                            </div>
+                            <div className="text-teal-100 font-semibold text-lg">Total Annual Benefit</div>
+                          </div>
+                        </div>
+
+                        <div className="mt-8 text-center">
+                          <Button size="lg" className="bg-white text-teal-600 hover:bg-gray-100" asChild>
+                            <a href="https://calendly.com/arisolutionsinc/30min" target="_blank" rel="noopener noreferrer">
+                              <Calendar className="w-5 h-5 mr-2" />
+                              Book a Strategy Call Now
+                            </a>
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <div className="text-center text-sm text-muted-foreground">
+                      * Results based on typical client performance. Actual results may vary based on industry, market conditions, and campaign execution.
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
