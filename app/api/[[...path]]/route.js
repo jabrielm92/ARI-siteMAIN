@@ -208,7 +208,7 @@ export async function GET(request) {
       }
 
       // Get order to check download attempts
-      const orderDoc = await getDoc(doc(db, 'orders', verification.orderId));
+      const orderDoc = await getDoc(doc(getDB(), 'orders', verification.orderId));
       
       if (!orderDoc.exists()) {
         return NextResponse.json(
