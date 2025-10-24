@@ -181,7 +181,7 @@ export default function App() {
               <Badge className="mb-4">Featured Course</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Start Learning Today</h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Our most popular course—go from zero to automated income in 30 days
+                Our most popular course—go from zero to automated income in 14 days
               </p>
             </div>
             
