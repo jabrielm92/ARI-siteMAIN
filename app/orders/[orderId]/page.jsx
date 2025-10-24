@@ -45,49 +45,17 @@ export default function OrderSuccessPage() {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     if (!downloadToken) {
       alert('Download token not found. Please check your email for the download link.');
       return;
     }
 
-    try {
-      setDownloading(true);
-      const response = await fetch(`/api/download/${downloadToken}`);
-      
-      if (!response.ok) {
-        const data = await response.json();
-        alert(data.error || 'Download failed');
-        return;
-      }
-
-      // Get filename from Content-Disposition header or use default
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'course-materials.json';
-      if (contentDisposition) {
-        const matches = contentDisposition.match(/filename="(.+)"/);
-        if (matches) filename = matches[1];
-      }
-
-      // Create blob and download
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      // Refresh order to update download count
-      setTimeout(() => fetchOrder(), 1000);
-    } catch (err) {
-      console.error('Download error:', err);
-      alert('Download failed. Please try again or contact support.');
-    } finally {
-      setDownloading(false);
-    }
+    // Navigate directly to download URL - browser will follow the redirect to Vercel Blob
+    window.location.href = `/api/download/${downloadToken}`;
+    
+    // Refresh order after a delay to update download count
+    setTimeout(() => fetchOrder(), 2000);
   };
 
   if (loading) {
