@@ -26,7 +26,7 @@ export default function Navbar() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">A</span>
             </div>
-            <span className="font-bold text-xl hidden sm:block">ARI Solutions</span>
+            <span className="font-bold text-xl hidden sm:block">ARI Solutions Inc.</span>
           </Link>
 
           {/* Desktop Navigation */}
