@@ -1,14 +1,18 @@
 "use client";
 
+import { useState } from 'react';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle2, Target, Filter, Mail, Database, TrendingUp, Shield, Calendar, Phone, DollarSign, Users, Zap, BarChart, Lock, AlertCircle } from 'lucide-react';
 
 export default function LeadGenPage() {
+  const [activeTab, setActiveTab] = useState('pilot');
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
