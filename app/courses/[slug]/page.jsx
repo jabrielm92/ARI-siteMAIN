@@ -1,7 +1,7 @@
 "use client";
 
-import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
@@ -10,8 +10,37 @@ import FAQAccordion from '@/components/faq-accordion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, Users, Clock, CheckCircle2, Download, Video, FileText, MessageCircle, Lock } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Star, Users, Clock, CheckCircle2, Download, Video, FileText, MessageCircle, Lock, Mail, PartyPopper } from 'lucide-react';
 import { coursesData } from '@/lib/courses-data';
+
+export default function CourseDetailPage() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const course = coursesData.find(c => c.slug === params.slug);
+  
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [downloadToken, setDownloadToken] = useState(null);
+  const [orderId, setOrderId] = useState(null);
+
+  useEffect(() => {
+    // Check if redirected from successful payment
+    const success = searchParams.get('success');
+    const token = searchParams.get('token');
+    const order = searchParams.get('orderId');
+    
+    if (success === 'true' && token && order) {
+      setDownloadToken(token);
+      setOrderId(order);
+      setShowSuccessModal(true);
+    }
+  }, [searchParams]);
+
+  const handleDownload = () => {
+    if (downloadToken) {
+      window.location.href = `/api/download/${downloadToken}`;
+    }
+  };
 
 export default function CourseDetailPage() {
   const params = useParams();
