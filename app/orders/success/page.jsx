@@ -41,7 +41,8 @@ function OrderSuccessInner() {
             transactionId,
             amount,
             currency,
-            status
+            status,
+            courseId
           })
         });
 
