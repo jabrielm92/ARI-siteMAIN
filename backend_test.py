@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-BASE_URL = os.getenv('NEXT_PUBLIC_BASE_URL', 'https://digital-learning-hub.preview.emergentagent.com')
+BASE_URL = os.getenv('NEXT_PUBLIC_BASE_URL', 'https://growth-nexus-10.preview.emergentagent.com')
 API_BASE = f"{BASE_URL}/api"
 
 class ARIBackendTester:
