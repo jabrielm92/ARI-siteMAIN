@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
-export default function PayPalButton({ courseId, amount, onSuccess, onError }) {
+export default function PayPalButton({ courseId, courseSlug, amount, onSuccess, onError }) {
   const router = useRouter();
   const [error, setError] = useState(null);
 
@@ -45,6 +45,11 @@ export default function PayPalButton({ courseId, amount, onSuccess, onError }) {
       // Get customer email
       const email = prompt('Please enter your email for receipt and download link:');
       
+      if (!email) {
+        alert('Email is required to send your download link');
+        return;
+      }
+      
       const response = await fetch('/api/paypal/capture', {
         method: 'POST',
         headers: {
@@ -63,12 +68,9 @@ export default function PayPalButton({ courseId, amount, onSuccess, onError }) {
         throw new Error(result.error || 'Payment capture failed');
       }
 
-      // Redirect to order success page
-      if (onSuccess) {
-        onSuccess(result);
-      } else {
-        router.push(`/orders/${result.orderId}?token=${result.downloadToken}`);
-      }
+      // Redirect to course page with success parameters
+      router.push(`/courses/${courseSlug}?success=true&orderId=${result.orderId}&token=${result.downloadToken}`);
+      
     } catch (error) {
       console.error('Capture order error:', error);
       setError(error.message);
