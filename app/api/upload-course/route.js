@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { coursesData } from '@/lib/courses-data';
 
+// Next.js 14 App Router route segment config
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -53,9 +57,3 @@ export async function POST(request) {
     );
   }
 }
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
