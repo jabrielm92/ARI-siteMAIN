@@ -4,32 +4,22 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
+import PayPalButton from '@/components/paypal-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Shield, Lock, ArrowLeft } from 'lucide-react';
 import { coursesData } from '@/lib/courses-data';
 import Link from 'next/link';
-import Script from 'next/script';
 
 export default function CheckoutPage() {
   const params = useParams();
   const [course, setCourse] = useState(null);
-  const [paypalLoaded, setPaypalLoaded] = useState(false);
 
   useEffect(() => {
     const foundCourse = coursesData.find(c => c.id === params.courseId);
     setCourse(foundCourse);
   }, [params.courseId]);
-
-  useEffect(() => {
-    // Render PayPal button when script loads
-    if (paypalLoaded && window.paypal) {
-      window.paypal.HostedButtons({
-        hostedButtonId: "BJCMXAD6THUMN",
-      }).render("#paypal-container-BJCMXAD6THUMN");
-    }
-  }, [paypalLoaded]);
 
   if (!course) {
     return (
