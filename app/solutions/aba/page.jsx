@@ -265,7 +265,7 @@ export default function ABAPage() {
                 <p className="text-lg mb-6 italic">
                   "ABA transformed my business. I went from spending 2 hours a day on scheduling to zero. My clients love how easy it is to book."
                 </p>
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div>
                     <div className="text-3xl font-bold text-teal-600">12 hrs/week</div>
                     <div className="text-sm text-muted-foreground">Time Saved</div>
