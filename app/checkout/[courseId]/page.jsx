@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 import PayPalButton from '@/components/paypal-button';
@@ -18,6 +18,12 @@ export default function CheckoutPage() {
   const [course, setCourse] = useState(null);
   const [paypalReady, setPaypalReady] = useState(false);
 
+  // Map course IDs to hosted button IDs
+  const hostedButtons = useMemo(() => ({
+    'course-001': 'BJCMXAD6THUMN',
+    'course-002': '9T7AEK8G2N5VC',
+  }), []);
+
   useEffect(() => {
     const foundCourse = coursesData.find(c => c.id === params.courseId);
     setCourse(foundCourse);
@@ -25,14 +31,27 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     // Initialize hosted button after SDK loads
-    if (paypalReady && course?.id === 'course-001' && typeof window !== 'undefined' && window.paypal?.HostedButtons) {
+    if (
+      paypalReady &&
+      course?.id &&
+      hostedButtons[course.id] &&
+      typeof window !== 'undefined' &&
+      window.paypal?.HostedButtons
+    ) {
       try {
-        window.paypal.HostedButtons({ hostedButtonId: 'BJCMXAD6THUMN' }).render('#paypal-container-BJCMXAD6THUMN');
+        const containerSelector = `#paypal-container-${hostedButtons[course.id]}`;
+        // Avoid double render if already present
+        const container = document.querySelector(containerSelector);
+        if (container && container.childElementCount === 0) {
+          window.paypal
+            .HostedButtons({ hostedButtonId: hostedButtons[course.id] })
+            .render(containerSelector);
+        }
       } catch (e) {
         console.error('PayPal HostedButtons render error:', e);
       }
     }
-  }, [paypalReady, course?.id]);
+  }, [paypalReady, course?.id, hostedButtons]);
 
   if (!course) {
     return (
@@ -50,12 +69,14 @@ export default function CheckoutPage() {
     );
   }
 
+  const hostedId = hostedButtons[course.id];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Load PayPal Hosted Buttons SDK only for course-001 */}
-      {course.id === 'course-001' && (
+      {/* Load PayPal Hosted Buttons SDK only when needed */}
+      {hostedId && (
         <Script
           src="https://www.paypal.com/sdk/js?client-id=BAA34wmSRHhP-8DTw_xDBKVdfalQt8ad14Lt8k0on6OqRLiETM7ae3_4RVnU2VThlBbSd-cweMeBdlk-Hw&components=hosted-buttons&enable-funding=venmo&currency=USD"
           strategy="afterInteractive"
@@ -120,9 +141,9 @@ export default function CheckoutPage() {
                   <div>
                     <h3 className="font-semibold mb-4">Complete Your Purchase</h3>
 
-                    {course.id === 'course-001' ? (
+                    {hostedId ? (
                       <div>
-                        <div id="paypal-container-BJCMXAD6THUMN" />
+                        <div id={`paypal-container-${hostedId}`} />
                         <p className="text-xs text-muted-foreground mt-3">
                           Secured by PayPal. After payment you will be redirected back to the course to download.
                         </p>
