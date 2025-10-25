@@ -42,10 +42,6 @@ export default function CourseDetailPage() {
     }
   };
 
-export default function CourseDetailPage() {
-  const params = useParams();
-  const course = coursesData.find(c => c.slug === params.slug);
-
   if (!course) {
     return (
       <div className="min-h-screen bg-background">
