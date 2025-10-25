@@ -326,7 +326,7 @@ export default function AIReceptionistPage() {
                 <p className="text-lg mb-6 italic">
                   "We were missing 30-40% of calls during busy season. The AI receptionist now handles everything—even gives estimates. Our booking rate doubled."
                 </p>
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div>
                     <div className="text-3xl font-bold text-teal-600">95%</div>
                     <div className="text-sm text-muted-foreground">Calls Answered</div>
