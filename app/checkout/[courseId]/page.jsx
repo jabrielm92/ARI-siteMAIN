@@ -4,22 +4,32 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
-import PayPalButton from '@/components/paypal-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Shield, Lock, ArrowLeft } from 'lucide-react';
 import { coursesData } from '@/lib/courses-data';
 import Link from 'next/link';
+import Script from 'next/script';
 
 export default function CheckoutPage() {
   const params = useParams();
   const [course, setCourse] = useState(null);
+  const [paypalLoaded, setPaypalLoaded] = useState(false);
 
   useEffect(() => {
     const foundCourse = coursesData.find(c => c.id === params.courseId);
     setCourse(foundCourse);
   }, [params.courseId]);
+
+  useEffect(() => {
+    // Render PayPal button when script loads
+    if (paypalLoaded && window.paypal) {
+      window.paypal.HostedButtons({
+        hostedButtonId: "BJCMXAD6THUMN",
+      }).render("#paypal-container-BJCMXAD6THUMN");
+    }
+  }, [paypalLoaded]);
 
   if (!course) {
     return (
@@ -39,6 +49,12 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Load PayPal SDK */}
+      <Script 
+        src="https://www.paypal.com/sdk/js?client-id=BAA34wmSRHhP-8DTw_xDBKVdfalQt8ad14Lt8k0on6OqRLiETM7ae3_4RVnU2VThlBbSd-cweMeBdlk-Hw&components=hosted-buttons&enable-funding=venmo&currency=USD"
+        onLoad={() => setPaypalLoaded(true)}
+      />
+      
       <Navbar />
 
       <div className="container mx-auto px-4 py-12">
@@ -78,29 +94,35 @@ export default function CheckoutPage() {
                   <div className="space-y-3 py-4 border-y">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Course Price</span>
-                      <span className="font-semibold">${course.price}</span>
+                      <span className="font-semibold">${course.price.toFixed(2)}</span>
                     </div>
                     {course.originalPrice && (
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">You Save</span>
-                        <span className="font-semibold text-green-600">
+                        <span className="text-green-600 font-semibold">
                           ${(course.originalPrice - course.price).toFixed(2)}
                         </span>
                       </div>
                     )}
-                    <div className="flex justify-between text-xl font-bold pt-3 border-t">
+                    <div className="flex justify-between text-lg font-bold pt-3 border-t">
                       <span>Total</span>
-                      <span>${course.price}</span>
+                      <span className="text-teal-600">${course.price.toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Payment Section */}
                   <div>
-                    <h3 className="font-semibold text-lg mb-4">Payment Method</h3>
-                    <PayPalButton
-                      courseId={course.id}
-                      amount={course.price}
-                    />
+                    <h3 className="font-semibold mb-4">Complete Your Purchase</h3>
+                    
+                    {/* PayPal Hosted Button */}
+                    <div id="paypal-container-BJCMXAD6THUMN" className="min-h-[150px]"></div>
+                    
+                    {!paypalLoaded && (
+                      <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+                        <span className="ml-3 text-muted-foreground">Loading payment options...</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Security Badges */}
