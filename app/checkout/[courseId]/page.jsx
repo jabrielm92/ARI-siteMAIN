@@ -142,9 +142,9 @@ export default function CheckoutPage() {
                     <h3 className="font-semibold mb-4">Complete Your Purchase</h3>
 
                     {hostedId ? (
-                      <div>
-                        <div id={`paypal-container-${hostedId}`} />
-                        <p className="text-xs text-muted-foreground mt-3">
+                      <div className="flex flex-col items-center">
+                        <div id={`paypal-container-${hostedId}`} className="w-full flex justify-center" />
+                        <p className="text-xs text-muted-foreground mt-3 text-center">
                           Secured by PayPal. After payment you will be redirected back to the course to download.
                         </p>
                       </div>
