@@ -303,11 +303,11 @@ export async function POST(request) {
           },
         ],
         application_context: {
-          brand_name: 'ARI Solutions Inc',
-          landing_page: 'NO_PREFERENCE',
-          user_action: 'PAY_NOW',
-          return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/orders/success`,
-          cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/courses/${course.slug}`,
+        brand_name: 'ARI Solutions Inc',
+        landing_page: 'NO_PREFERENCE',
+        user_action: 'PAY_NOW',
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/${courseId}?success=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/courses/${courseSlug}`
         },
       });
 
