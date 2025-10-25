@@ -21,9 +21,10 @@ function OrderSuccessInner() {
     const processOrder = async () => {
       // Get PayPal transaction details from URL
       const transactionId = searchParams.get('tx');
-      const amount = searchParams.get('am');
+      const amount = searchParams.get('am') || searchParams.get('amt');
       const status = searchParams.get('st');
-      const currency = searchParams.get('cr');
+      const currency = searchParams.get('cr') || searchParams.get('cc');
+      const courseId = searchParams.get('courseId');
 
       if (!transactionId || status !== 'COMPLETED') {
         setError('Payment was not completed or transaction ID is missing.');
