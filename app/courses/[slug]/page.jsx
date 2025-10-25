@@ -63,6 +63,73 @@ export default function CourseDetailPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
+      {/* Success Modal */}
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <PartyPopper className="w-8 h-8 text-green-600" />
+              </div>
+            </div>
+            <DialogTitle className="text-center text-2xl">Payment Successful!</DialogTitle>
+            <DialogDescription className="text-center">
+              Thank you for your purchase. Your course is ready to download.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Mail className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                    Confirmation Email Sent
+                  </p>
+                  <p className="text-blue-700 dark:text-blue-300">
+                    Check your inbox for your download link and receipt.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-800 p-4 rounded-lg">
+              <p className="font-semibold mb-2">Course Details:</p>
+              <p className="text-sm text-muted-foreground mb-1">{course.title}</p>
+              <p className="text-xs text-muted-foreground">Order ID: {orderId}</p>
+            </div>
+
+            <Button 
+              onClick={handleDownload}
+              className="w-full bg-teal-500 hover:bg-teal-600"
+              size="lg"
+            >
+              <Download className="w-5 h-5 mr-2" />
+              Download Course Now
+            </Button>
+
+            <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 p-3 rounded-lg text-xs">
+              <p className="font-semibold text-yellow-800 dark:text-yellow-200 mb-1">
+                Important:
+              </p>
+              <ul className="space-y-1 text-yellow-700 dark:text-yellow-300">
+                <li>• Download link expires in 72 hours</li>
+                <li>• Maximum 3 downloads allowed</li>
+                <li>• Check your email for backup</li>
+              </ul>
+            </div>
+
+            <Button 
+              onClick={() => setShowSuccessModal(false)}
+              variant="outline"
+              className="w-full"
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-20">
         <div className="container mx-auto px-4">
