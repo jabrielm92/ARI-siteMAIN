@@ -1,8 +1,7 @@
-export const dynamic = 'force-dynamic';
 "use client";
+export const dynamic = 'force-dynamic';
 
-
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
@@ -11,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, Download, Mail, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function OrderSuccessPage() {
+function OrderSuccessInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -226,5 +225,22 @@ export default function OrderSuccessPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-teal-500 mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading your order...</p>
+          </div>
+        </div>
+      }
+    >
+      <OrderSuccessInner />
+    </Suspense>
   );
 }
