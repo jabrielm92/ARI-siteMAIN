@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
-import { getDB } from '@/lib/firebase';
 import { db as getDB } from '@/lib/firebase';
 
 // Next.js 14 App Router route segment config
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
 
 export async function GET(request) {
   try {
