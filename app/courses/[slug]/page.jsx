@@ -44,7 +44,11 @@ export default function CourseDetailPage() {
     const cr = searchParams.get('cr');
 
     if (tx && (st?.toUpperCase?.() === 'COMPLETED' || st?.toUpperCase?.() === 'COMPLETED ') ) {
-      // Create order on server and get download token
+      // Immediately open success modal and fall back to direct download URL
+      setShowSuccessModal(true);
+      if (course?.downloadUrl) setDirectUrl(course.downloadUrl);
+
+      // Try to create an order server-side for tokenized downloads (optional)
       (async () => {
         try {
           const res = await fetch('/api/paypal/process-hosted-payment', {
@@ -67,7 +71,6 @@ export default function CourseDetailPage() {
             if (data.directDownloadUrl) {
               setDirectUrl(data.directDownloadUrl);
             }
-            setShowSuccessModal(true);
           }
         } catch (e) {
           console.error('Hosted payment processing failed', e);
