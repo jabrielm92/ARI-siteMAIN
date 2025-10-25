@@ -112,11 +112,17 @@ export default function CheckoutPage() {
 
                   {/* Payment Section */}
                   <div>
-                    <h3 className="font-semibold text-lg mb-4">Payment Method</h3>
-                    <PayPalButton
-                      courseId={course.id}
-                      amount={course.price}
-                    />
+                    <h3 className="font-semibold mb-4">Complete Your Purchase</h3>
+                    
+                    {/* PayPal Hosted Button */}
+                    <div id="paypal-container-BJCMXAD6THUMN" className="min-h-[150px]"></div>
+                    
+                    {!paypalLoaded && (
+                      <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+                        <span className="ml-3 text-muted-foreground">Loading payment options...</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Security Badges */}
