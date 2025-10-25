@@ -11,15 +11,28 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, Shield, Lock, ArrowLeft } from 'lucide-react';
 import { coursesData } from '@/lib/courses-data';
 import Link from 'next/link';
+import Script from 'next/script';
 
 export default function CheckoutPage() {
   const params = useParams();
   const [course, setCourse] = useState(null);
+  const [paypalReady, setPaypalReady] = useState(false);
 
   useEffect(() => {
     const foundCourse = coursesData.find(c => c.id === params.courseId);
     setCourse(foundCourse);
   }, [params.courseId]);
+
+  useEffect(() => {
+    // Initialize hosted button after SDK loads
+    if (paypalReady && course?.id === 'course-001' && typeof window !== 'undefined' && window.paypal?.HostedButtons) {
+      try {
+        window.paypal.HostedButtons({ hostedButtonId: 'BJCMXAD6THUMN' }).render('#paypal-container-BJCMXAD6THUMN');
+      } catch (e) {
+        console.error('PayPal HostedButtons render error:', e);
+      }
+    }
+  }, [paypalReady, course?.id]);
 
   if (!course) {
     return (
@@ -40,6 +53,15 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+
+      {/* Load PayPal Hosted Buttons SDK only for course-001 */}
+      {course.id === 'course-001' && (
+        <Script
+          src="https://www.paypal.com/sdk/js?client-id=BAA34wmSRHhP-8DTw_xDBKVdfalQt8ad14Lt8k0on6OqRLiETM7ae3_4RVnU2VThlBbSd-cweMeBdlk-Hw&components=hosted-buttons&enable-funding=venmo&currency=USD"
+          strategy="afterInteractive"
+          onLoad={() => setPaypalReady(true)}
+        />
+      )}
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
@@ -97,11 +119,21 @@ export default function CheckoutPage() {
                   {/* Payment Section */}
                   <div>
                     <h3 className="font-semibold mb-4">Complete Your Purchase</h3>
-                    <PayPalButton
-                      courseId={course.id}
-                      courseSlug={course.slug}
-                      amount={course.price}
-                    />
+
+                    {course.id === 'course-001' ? (
+                      <div>
+                        <div id="paypal-container-BJCMXAD6THUMN" />
+                        <p className="text-xs text-muted-foreground mt-3">
+                          Secured by PayPal. After payment you will be redirected back to the course to download.
+                        </p>
+                      </div>
+                    ) : (
+                      <PayPalButton
+                        courseId={course.id}
+                        courseSlug={course.slug}
+                        amount={course.price}
+                      />
+                    )}
                   </div>
 
                   {/* Security Badges */}

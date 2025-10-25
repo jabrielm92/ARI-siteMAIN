@@ -22,9 +22,10 @@ export default function CourseDetailPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [downloadToken, setDownloadToken] = useState(null);
   const [orderId, setOrderId] = useState(null);
+  const [directUrl, setDirectUrl] = useState(null);
 
   useEffect(() => {
-    // Check if redirected from successful payment
+    // 1) Smart Buttons success path (existing)
     const success = searchParams.get('success');
     const token = searchParams.get('token');
     const order = searchParams.get('orderId');
@@ -33,12 +34,54 @@ export default function CourseDetailPage() {
       setDownloadToken(token);
       setOrderId(order);
       setShowSuccessModal(true);
+      return;
+    }
+
+    // 2) Hosted Buttons return path: PayPal appends tx, st, am, cr
+    const tx = searchParams.get('tx');
+    const st = searchParams.get('st');
+    const am = searchParams.get('am');
+    const cr = searchParams.get('cr');
+
+    if (tx && (st?.toUpperCase?.() === 'COMPLETED' || st?.toUpperCase?.() === 'COMPLETED ') ) {
+      // Create order on server and get download token
+      (async () => {
+        try {
+          const res = await fetch('/api/paypal/process-hosted-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              transactionId: tx,
+              amount: am,
+              currency: cr,
+              status: st,
+              courseId: course?.id,
+            }),
+          });
+          const data = await res.json();
+          if (data?.success) {
+            if (data.downloadToken && data.orderId) {
+              setDownloadToken(data.downloadToken);
+              setOrderId(data.orderId);
+            }
+            if (data.directDownloadUrl) {
+              setDirectUrl(data.directDownloadUrl);
+            }
+            setShowSuccessModal(true);
+          }
+        } catch (e) {
+          console.error('Hosted payment processing failed', e);
+        }
+      })();
     }
   }, [searchParams]);
 
   const handleDownload = () => {
     if (downloadToken) {
       window.location.href = `/api/download/${downloadToken}`;
+    } else if (directUrl || course?.downloadUrl) {
+      // Fallback direct download if token not available
+      window.location.href = directUrl || course.downloadUrl;
     }
   };
 
@@ -92,7 +135,7 @@ export default function CourseDetailPage() {
             <div className="bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-800 p-4 rounded-lg">
               <p className="font-semibold mb-2">Course Details:</p>
               <p className="text-sm text-muted-foreground mb-1">{course.title}</p>
-              <p className="text-xs text-muted-foreground">Order ID: {orderId}</p>
+              {orderId && <p className="text-xs text-muted-foreground">Order ID: {orderId}</p>}
             </div>
 
             <Button 
@@ -109,8 +152,8 @@ export default function CourseDetailPage() {
                 Important:
               </p>
               <ul className="space-y-1 text-yellow-700 dark:text-yellow-300">
-                <li>• Download link expires in 72 hours</li>
-                <li>• Maximum 3 downloads allowed</li>
+                <li>• Download link may expire in 72 hours</li>
+                <li>• Maximum 3 downloads allowed (if using tokenized link)</li>
                 <li>• Check your email for backup</li>
               </ul>
             </div>
@@ -126,7 +169,7 @@ export default function CourseDetailPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Hero Section */}
+      {/* Existing Course Page Content */}
       <section className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -143,7 +186,6 @@ export default function CourseDetailPage() {
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">{course.title}</h1>
               <p className="text-xl text-gray-300 mb-6">{course.subtitle}</p>
-              
               <div className="flex items-center gap-6 mb-6 text-gray-300">
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
@@ -158,7 +200,6 @@ export default function CourseDetailPage() {
                   <span>{course.duration}</span>
                 </div>
               </div>
-
               <div className="flex items-center gap-4 mb-6">
                 <span className="text-4xl font-bold">${course.price}</span>
                 {course.originalPrice && (
@@ -171,14 +212,9 @@ export default function CourseDetailPage() {
                 )}
               </div>
             </div>
-
             <div className="relative">
               <div className="aspect-video rounded-xl overflow-hidden shadow-2xl border border-gray-700">
-                <img
-                  src={course.heroImage}
-                  alt={course.title}
-                  className="w-full h-full object-cover"
-                />
+                <img src={course.heroImage} alt={course.title} className="w-full h-full object-cover" />
               </div>
             </div>
           </div>
@@ -195,9 +231,7 @@ export default function CourseDetailPage() {
                 <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
                 <TabsTrigger value="testimonials">Reviews</TabsTrigger>
               </TabsList>
-
               <TabsContent value="overview" className="space-y-8 mt-6">
-                {/* What You'll Build */}
                 <Card>
                   <CardHeader>
                     <CardTitle>What You'll Build</CardTitle>
@@ -213,8 +247,6 @@ export default function CourseDetailPage() {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Description */}
                 <Card>
                   <CardHeader>
                     <CardTitle>About This Course</CardTitle>
@@ -223,8 +255,6 @@ export default function CourseDetailPage() {
                     <p className="text-muted-foreground leading-relaxed">{course.description}</p>
                   </CardContent>
                 </Card>
-
-                {/* Prerequisites */}
                 {course.prerequisites && course.prerequisites.length > 0 && (
                   <Card>
                     <CardHeader>
@@ -243,7 +273,6 @@ export default function CourseDetailPage() {
                   </Card>
                 )}
               </TabsContent>
-
               <TabsContent value="curriculum" className="space-y-4 mt-6">
                 {course.modules.map((module) => (
                   <Card key={module.number}>
@@ -271,7 +300,6 @@ export default function CourseDetailPage() {
                   </Card>
                 ))}
               </TabsContent>
-
               <TabsContent value="testimonials" className="space-y-6 mt-6">
                 {course.testimonials && course.testimonials.length > 0 ? (
                   course.testimonials.map((testimonial, idx) => (
@@ -303,7 +331,6 @@ export default function CourseDetailPage() {
               </TabsContent>
             </Tabs>
 
-            {/* FAQ Section */}
             {course.faqs && course.faqs.length > 0 && (
               <div className="mt-12">
                 <h2 className="text-3xl font-bold mb-6">Frequently Asked Questions</h2>
