@@ -306,8 +306,8 @@ export async function POST(request) {
         brand_name: 'ARI Solutions Inc',
         landing_page: 'NO_PREFERENCE',
         user_action: 'PAY_NOW',
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/${courseId}?success=true`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/courses/${courseSlug}`
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/${courseId}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/${courseId}`,
         },
       });
 
