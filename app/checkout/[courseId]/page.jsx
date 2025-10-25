@@ -49,6 +49,12 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Load PayPal SDK */}
+      <Script 
+        src="https://www.paypal.com/sdk/js?client-id=BAA34wmSRHhP-8DTw_xDBKVdfalQt8ad14Lt8k0on6OqRLiETM7ae3_4RVnU2VThlBbSd-cweMeBdlk-Hw&components=hosted-buttons&enable-funding=venmo&currency=USD"
+        onLoad={() => setPaypalLoaded(true)}
+      />
+      
       <Navbar />
 
       <div className="container mx-auto px-4 py-12">
