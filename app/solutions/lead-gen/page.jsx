@@ -119,13 +119,29 @@ export default function LeadGenPage() {
             </p>
           </div>
 
-          <Tabs defaultValue="pilot" className="max-w-5xl mx-auto">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-5xl mx-auto">
+            {/* Desktop Tabs */}
+            <TabsList className="hidden md:grid w-full grid-cols-4">
               <TabsTrigger value="pilot">Pilot Campaign</TabsTrigger>
               <TabsTrigger value="ongoing">Ongoing Supply</TabsTrigger>
               <TabsTrigger value="enrichment">AI Scoring</TabsTrigger>
               <TabsTrigger value="pps">Book-and-Handoff</TabsTrigger>
             </TabsList>
+
+            {/* Mobile Dropdown */}
+            <div className="md:hidden mb-6">
+              <Select value={activeTab} onValueChange={setActiveTab}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a service" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pilot">Pilot Campaign</SelectItem>
+                  <SelectItem value="ongoing">Ongoing Supply</SelectItem>
+                  <SelectItem value="enrichment">AI Scoring</SelectItem>
+                  <SelectItem value="pps">Book-and-Handoff</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <TabsContent value="pilot" className="mt-6">
               <Card>
