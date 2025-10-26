@@ -164,25 +164,6 @@ export default function CourseDetailPage() {
                   </Card>
                 )}
 
-                <Card className="bg-gradient-to-br from-teal-500/10 to-teal-600/10 border-teal-500/20">
-                  <CardContent className="p-8 text-center">
-                    <h3 className="text-2xl font-bold mb-4">Ready to Get Started?</h3>
-                    <p className="text-muted-foreground mb-6">Join {course.students.toLocaleString()}+ students who are already learning</p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button size="lg" className="bg-teal-500 hover:bg-teal-600" asChild>
-                        <Link href={`/checkout/${course.id}`}>Proceed to Checkout - ${course.price}</Link>
-                      </Button>
-                      <Button size="lg" variant="outline" asChild>
-                        <Link href="/courses">Browse Other Courses</Link>
-                      </Button>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-4 flex items-center justify-center gap-2">
-                      <Shield className="w-4 h-4 text-teal-500" />
-                      30-day money-back guarantee
-                    </p>
-                  </CardContent>
-                </Card>
-
                 {course.faqs && course.faqs.length > 0 && (
                   <Card>
                     <CardHeader>
