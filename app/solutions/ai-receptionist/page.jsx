@@ -56,10 +56,10 @@ export default function AIReceptionistPage() {
                 </a>
               </Button>
               <Button size="lg" variant="outline" className="border-gray-600 text-black hover:bg-gray-200" asChild>
-                <a href="mailto:arisolutionsinc@gmail.com">
+                <Link href="/contact">
                   <Mail className="w-5 h-5 mr-2" />
                   Email Us
-                </a>
+                </Link>
               </Button>
             </div>
           </div>
