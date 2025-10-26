@@ -181,18 +181,19 @@ export default function SolutionsPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-teal-500 to-teal-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+      <section className="py-12 md:py-20 bg-gradient-to-br from-teal-500 to-teal-600 text-white">
+        <div className="container mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 md:mb-6">
             Ready to Automate Your Business?
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+          <p className="text-lg md:text-xl mb-6 md:mb-8 max-w-2xl mx-auto opacity-90">
             Book a free 30-minute consultation to discuss your needs
           </p>
-          <Button size="lg" className="bg-white text-teal-600 hover:bg-gray-100" asChild>
-            <Link href="/contact">
-              Schedule Free Consultation <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
+          <Button size="lg" className="bg-white text-teal-600 hover:bg-gray-100 w-full sm:w-auto" asChild>
+            <a href="https://calendly.com/arisolutionsinc/30min" target="_blank" rel="noopener noreferrer">
+              <Calendar className="mr-2 w-4 h-4" />
+              Schedule Free Consultation
+            </a>
           </Button>
         </div>
       </section>
