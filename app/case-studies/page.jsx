@@ -63,6 +63,80 @@ export default function CaseStudiesPage() {
     }
   ];
 
+  const aiReceptionistCases = [
+    {
+      company: 'Green Valley Landscaping',
+      industry: 'Home Services',
+      challenge: 'Missing 30-40% of calls during busy season, leading to lost revenue',
+      solution: 'AI Virtual Receptionist with quote generation and appointment booking',
+      results: [
+        { metric: '95% Call Answer', desc: 'No more missed calls', icon: Target },
+        { metric: '+40% Bookings', desc: 'Increase in appointments', icon: TrendingUp },
+        { metric: '$2,800/mo Saved', desc: 'Staffing cost reduction', icon: DollarSign },
+        { metric: '24/7 Coverage', desc: 'Never miss a lead', icon: Clock }
+      ],
+      testimonial: "We were missing 30-40% of calls during busy season. The AI receptionist now handles everything—even gives estimates. Our booking rate doubled.",
+      author: "Tom Martinez",
+      role: "Owner",
+      timeline: "60 Days",
+      investment: "$997"
+    },
+    {
+      company: 'Premier Dental Care',
+      industry: 'Healthcare',
+      challenge: 'Front desk overwhelmed, long wait times, inconsistent patient experience',
+      solution: 'AI receptionist with insurance verification and appointment management',
+      results: [
+        { metric: '100% Answered', desc: 'All calls handled', icon: Target },
+        { metric: '85% Less Wait', desc: 'Patient wait time reduction', icon: Clock },
+        { metric: '60 Hrs/mo', desc: 'Staff time freed up', icon: Users },
+        { metric: '4.8★ Rating', desc: 'Patient satisfaction', icon: Star }
+      ],
+      testimonial: "Our front desk staff can now focus on in-person patients while the AI handles all incoming calls perfectly. Patient satisfaction scores went up significantly.",
+      author: "Dr. Lisa Chen",
+      role: "Practice Owner",
+      timeline: "30 Days",
+      investment: "$997"
+    }
+  ];
+
+  const abaCases = [
+    {
+      company: 'Dr. Amanda Rodriguez Wellness Coaching',
+      industry: 'Coaching & Consulting',
+      challenge: 'Spending 2 hours daily on scheduling, no-shows, manual calendar management',
+      solution: 'Appointment Booking Accelerator with payment collection and automated reminders',
+      results: [
+        { metric: '12 Hrs/week', desc: 'Time saved on scheduling', icon: Clock },
+        { metric: '+215% Bookings', desc: 'Appointment increase', icon: TrendingUp },
+        { metric: '85% Fewer No-Shows', desc: 'With automated reminders', icon: CheckCircle2 },
+        { metric: '$0 Admin Time', desc: 'Fully automated', icon: DollarSign }
+      ],
+      testimonial: "ABA transformed my business. I went from spending 2 hours a day on scheduling to zero. My clients love how easy it is to book.",
+      author: "Dr. Amanda Rodriguez",
+      role: "Wellness Coach",
+      timeline: "45 Days",
+      investment: "$497"
+    },
+    {
+      company: 'Elite Fitness Studio',
+      industry: 'Health & Fitness',
+      challenge: 'Class scheduling conflicts, payment collection issues, high no-show rate',
+      solution: 'ABA with class capacity management, upfront payment, and waitlist automation',
+      results: [
+        { metric: '40% More Classes', desc: 'Better capacity utilization', icon: TrendingUp },
+        { metric: '92% Show Rate', desc: 'With payment commitment', icon: CheckCircle2 },
+        { metric: '$4.5K/mo', desc: 'Additional revenue captured', icon: DollarSign },
+        { metric: 'Zero Conflicts', desc: 'Smart scheduling logic', icon: Target }
+      ],
+      testimonial: "The automated booking system handles everything—payments, reminders, waitlists. We're running at 92% capacity now versus 60% before.",
+      author: "Marcus Johnson",
+      role: "Studio Owner",
+      timeline: "30 Days",
+      investment: "$497"
+    }
+  ];
+
   const studentSuccess = [
     {
       name: "Jason Torres",
