@@ -6,7 +6,7 @@ import Footer from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Calendar } from 'lucide-react';
 import { servicesData } from '@/lib/courses-data';
 
 export default function SolutionsPage() {
