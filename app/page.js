@@ -225,6 +225,173 @@ export default function App() {
         </section>
       )}
 
+      {/* AI Opportunity & How We Help Section */}
+      <section className="py-12 md:py-20 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 md:mb-12">
+            <Badge className="mb-4">The AI Opportunity</Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">You're Still Early</h2>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+              AI is transforming business, but most companies haven't automated yet. This is your competitive advantage.
+            </p>
+          </div>
+
+          {/* Market Stats Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-6xl mx-auto mb-12 md:mb-16">
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <BarChart3 className="w-10 h-10 md:w-12 md:h-12 text-teal-500 mx-auto mb-3" />
+                <div className="text-3xl md:text-4xl font-bold text-teal-600 mb-2">$1.8T</div>
+                <p className="text-sm text-muted-foreground">Global AI market by 2030</p>
+                <p className="text-xs text-muted-foreground mt-2">Source: Grand View Research</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <Briefcase className="w-10 h-10 md:w-12 md:h-12 text-teal-500 mx-auto mb-3" />
+                <div className="text-3xl md:text-4xl font-bold text-teal-600 mb-2">73%</div>
+                <p className="text-sm text-muted-foreground">Businesses plan to adopt AI</p>
+                <p className="text-xs text-muted-foreground mt-2">Source: McKinsey 2024</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <Lock className="w-10 h-10 md:w-12 md:h-12 text-orange-500 mx-auto mb-3" />
+                <div className="text-3xl md:text-4xl font-bold text-orange-600 mb-2">Only 23%</div>
+                <p className="text-sm text-muted-foreground">Have actually integrated AI automation</p>
+                <p className="text-xs text-muted-foreground mt-2">The gap is your opportunity</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <Users className="w-10 h-10 md:w-12 md:h-12 text-teal-500 mx-auto mb-3" />
+                <div className="text-3xl md:text-4xl font-bold text-teal-600 mb-2">40%</div>
+                <p className="text-sm text-muted-foreground">Productivity increase with AI automation</p>
+                <p className="text-xs text-muted-foreground mt-2">Average across industries</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* ROI Calculator CTA */}
+          <div className="max-w-4xl mx-auto mb-12 md:mb-16">
+            <Card className="bg-gradient-to-r from-teal-500/10 to-teal-600/10 border-teal-500/20">
+              <CardContent className="p-6 md:p-8 text-center">
+                <Calculator className="w-12 h-12 md:w-16 md:h-16 text-teal-500 mx-auto mb-4" />
+                <h3 className="text-2xl md:text-3xl font-bold mb-3">Calculate Your ROI</h3>
+                <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+                  See how much revenue you could generate with AI-powered lead generation
+                </p>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size="lg" className="bg-teal-500 hover:bg-teal-600">
+                      <Calculator className="mr-2 w-4 h-4" />
+                      Open ROI Calculator
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Lead Generation ROI Calculator</DialogTitle>
+                      <DialogDescription>
+                        Calculate how much more revenue you could generate with ARI Solutions
+                      </DialogDescription>
+                    </DialogHeader>
+                    <LeadGenROICalculator />
+                  </DialogContent>
+                </Dialog>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* How Our Solutions Work Together */}
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-8 md:mb-12">
+              <h3 className="text-2xl md:text-4xl font-bold mb-4">How Our Solutions Work Together</h3>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Each solution complements the others to create a complete business automation system
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+              <Card className="relative">
+                <div className="absolute -top-3 -right-3 w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold">
+                  1
+                </div>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="w-6 h-6 text-teal-500" />
+                    Lead Generation
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Fill your pipeline with qualified leads through AI-powered campaigns across multiple channels.
+                  </p>
+                  <p className="text-sm font-semibold text-teal-600">→ Feeds leads to AI Receptionist</p>
+                </CardContent>
+              </Card>
+
+              <Card className="relative">
+                <div className="absolute -top-3 -right-3 w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold">
+                  2
+                </div>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-6 h-6 text-teal-500" />
+                    AI Receptionist
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Answer every call 24/7, qualify prospects, provide quotes, and capture appointment requests.
+                  </p>
+                  <p className="text-sm font-semibold text-teal-600">→ Books into ABA system</p>
+                </CardContent>
+              </Card>
+
+              <Card className="relative">
+                <div className="absolute -top-3 -right-3 w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold">
+                  3
+                </div>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle2 className="w-6 h-6 text-teal-500" />
+                    Booking Accelerator
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Convert appointments to revenue with automated scheduling, reminders, and payment collection.
+                  </p>
+                  <p className="text-sm font-semibold text-teal-600">→ Closes the loop</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="mt-8 md:mt-12 text-center">
+              <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20">
+                <CardContent className="p-6 md:p-8">
+                  <h4 className="text-xl md:text-2xl font-bold mb-3">The Complete System</h4>
+                  <p className="text-muted-foreground mb-6">
+                    When all three work together: <strong>Lead Generation</strong> brings prospects → <strong>AI Receptionist</strong> qualifies and books them → <strong>ABA</strong> converts them to paying customers.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button size="lg" className="bg-teal-500 hover:bg-teal-600 w-full sm:w-auto" asChild>
+                      <Link href="/solutions">Explore Solutions</Link>
+                    </Button>
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
+                      <Link href="/contact">Talk to Our Team</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials and CTA sections remain unchanged */}
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
