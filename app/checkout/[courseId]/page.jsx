@@ -117,26 +117,6 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* Price Breakdown */}
-                  <div className="space-y-3 py-4 border-y">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Course Price</span>
-                      <span className="font-semibold">${course.price}</span>
-                    </div>
-                    {course.originalPrice && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">You Save</span>
-                        <span className="font-semibold text-green-600">
-                          ${(course.originalPrice - course.price).toFixed(2)}
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex justify-between text-xl font-bold pt-3 border-t">
-                      <span>Total</span>
-                      <span>${course.price}</span>
-                    </div>
-                  </div>
-
                   {/* Payment Section */}
                   <div>
                     <h3 className="font-semibold mb-4">Complete Your Purchase</h3>
