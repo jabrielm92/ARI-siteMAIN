@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Phone, MessageCircle, Calendar, DollarSign, Users, BarChart, Mail, Clock, Zap, ArrowRight, Star } from 'lucide-react';
+import JsonLd from '@/components/jsonld';
 
 export default function AIReceptionistPage() {
   return (
