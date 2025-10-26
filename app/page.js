@@ -425,3 +425,203 @@ export default function App() {
     </div>
   );
 }
+
+// ROI Calculator Component
+function LeadGenROICalculator() {
+  const [showResults, setShowResults] = useState(false);
+  const [inputs, setInputs] = useState({
+    costPerLead: '',
+    adSpend: '',
+    closeRate: '',
+    customerValue: '',
+    leadsPerMonth: '',
+    additionalLeads: '30'
+  });
+
+  const handleCalculate = () => {
+    setShowResults(true);
+  };
+
+  const calculateROI = () => {
+    const costPerLead = parseFloat(inputs.costPerLead) || 0;
+    const closeRate = parseFloat(inputs.closeRate) || 0;
+    const customerValue = parseFloat(inputs.customerValue) || 0;
+    const leadsPerMonth = parseFloat(inputs.leadsPerMonth) || 0;
+    const currentAdSpend = parseFloat(inputs.adSpend) || 0;
+    const additionalLeads = parseFloat(inputs.additionalLeads) || 0;
+
+    const currentConversions = (leadsPerMonth * closeRate) / 100;
+    const currentRevenue = currentConversions * customerValue;
+
+    const ariCostPerLead = costPerLead * 0.65;
+    const totalLeads = leadsPerMonth + additionalLeads;
+    const ariLeadCost = additionalLeads * ariCostPerLead;
+    const newAdSpend = currentAdSpend + ariLeadCost;
+    
+    const improvedCloseRate = closeRate * 1.30;
+    const newConversions = (totalLeads * improvedCloseRate) / 100;
+    const newRevenue = newConversions * customerValue;
+    const newCostPerLead = newAdSpend / totalLeads;
+
+    const additionalMonthlyRevenue = newRevenue - currentRevenue;
+    const netAnnualBenefit = (additionalMonthlyRevenue * 12) - (ariLeadCost * 12);
+
+    return {
+      current: { leadsPerMonth, conversions: currentConversions, revenue: currentRevenue, costPerLead, adSpend: currentAdSpend, closeRate },
+      new: { totalLeads, conversions: newConversions, revenue: newRevenue, costPerLead: newCostPerLead, adSpend: newAdSpend, closeRate: improvedCloseRate },
+      improvements: { additionalMonthlyRevenue, additionalLeads, netAnnualBenefit, additionalConversions: newConversions - currentConversions }
+    };
+  };
+
+  const results = showResults ? calculateROI() : null;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="costPerLead">Current Cost Per Lead ($)</Label>
+          <Input
+            id="costPerLead"
+            type="number"
+            placeholder="150"
+            value={inputs.costPerLead}
+            onChange={(e) => setInputs({...inputs, costPerLead: e.target.value})}
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <Label htmlFor="adSpend">Current Ad Spend/mo ($)</Label>
+          <Input
+            id="adSpend"
+            type="number"
+            placeholder="5000"
+            value={inputs.adSpend}
+            onChange={(e) => setInputs({...inputs, adSpend: e.target.value})}
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <Label htmlFor="closeRate">Lead-to-Close Rate (%)</Label>
+          <Input
+            id="closeRate"
+            type="number"
+            placeholder="10"
+            value={inputs.closeRate}
+            onChange={(e) => setInputs({...inputs, closeRate: e.target.value})}
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <Label htmlFor="customerValue">Avg Customer Value ($)</Label>
+          <Input
+            id="customerValue"
+            type="number"
+            placeholder="2000"
+            value={inputs.customerValue}
+            onChange={(e) => setInputs({...inputs, customerValue: e.target.value})}
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <Label htmlFor="leadsPerMonth">Current Leads/Month</Label>
+          <Input
+            id="leadsPerMonth"
+            type="number"
+            placeholder="50"
+            value={inputs.leadsPerMonth}
+            onChange={(e) => setInputs({...inputs, leadsPerMonth: e.target.value})}
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <Label htmlFor="additionalLeads">Additional Leads ARI Brings</Label>
+          <Input
+            id="additionalLeads"
+            type="number"
+            placeholder="30"
+            value={inputs.additionalLeads}
+            onChange={(e) => setInputs({...inputs, additionalLeads: e.target.value})}
+            className="mt-2"
+          />
+        </div>
+      </div>
+
+      <Button onClick={handleCalculate} className="w-full bg-teal-500 hover:bg-teal-600">
+        <Calculator className="w-4 h-4 mr-2" />
+        Calculate ROI
+      </Button>
+
+      {showResults && results && (
+        <div className="space-y-6 animate-in fade-in">
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="bg-gray-50 dark:bg-slate-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-red-500" />
+                  Current State
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Leads/Month</span>
+                  <span className="font-bold">{results.current.leadsPerMonth}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Cost Per Lead</span>
+                  <span className="font-bold">${results.current.costPerLead}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Close Rate</span>
+                  <span className="font-bold">{results.current.closeRate}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Monthly Revenue</span>
+                  <span className="font-bold">${results.current.revenue.toLocaleString()}</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-teal-50 dark:bg-teal-950 border-teal-500">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-teal-500" />
+                  With ARI Solutions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Leads/Month</span>
+                  <span className="font-bold text-teal-600">{results.new.totalLeads} <span className="text-xs">(+{results.improvements.additionalLeads})</span></span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Avg Cost Per Lead</span>
+                  <span className="font-bold text-teal-600">${results.new.costPerLead.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Close Rate</span>
+                  <span className="font-bold text-teal-600">{results.new.closeRate.toFixed(1)}% <span className="text-xs">(+30%)</span></span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Monthly Revenue</span>
+                  <span className="font-bold text-teal-600">${results.new.revenue.toLocaleString()}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="bg-gradient-to-br from-teal-500 to-teal-600 text-white">
+            <CardContent className="p-6 text-center">
+              <div className="text-4xl font-bold mb-2">
+                ${results.improvements.netAnnualBenefit.toLocaleString()}
+              </div>
+              <div className="text-teal-100">Net Annual Benefit</div>
+              <p className="text-sm text-teal-100 mt-4">
+                +{results.improvements.additionalConversions.toFixed(0)} more customers per month from {results.improvements.additionalLeads} additional leads
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
