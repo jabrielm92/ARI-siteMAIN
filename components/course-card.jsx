@@ -35,7 +35,7 @@ export default function CourseCard({ course }) {
         <CardTitle className="text-xl group-hover:text-primary transition-colors">
           {course.title}
         </CardTitle>
-        <CardDescription className="line-clamp-2">
+        <CardDescription className="line-clamp-3">
           {course.subtitle}
         </CardDescription>
       </CardHeader>
