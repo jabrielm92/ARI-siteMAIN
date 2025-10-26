@@ -86,9 +86,11 @@ export default function CourseDetailPage() {
                   </>
                 )}
               </div>
-              <Button asChild className="w-full md:w-auto" size="lg">
-                <Link href={`/checkout/${course.id}`}>Proceed to Checkout</Link>
-              </Button>
+              <div className="mb-6">
+                <Button asChild className="w-full md:w-auto" size="lg">
+                  <Link href={`/checkout/${course.id}`}>Proceed to Checkout</Link>
+                </Button>
+              </div>
             </div>
             <div className="relative">
               <div className="aspect-video rounded-xl overflow-hidden shadow-2xl border border-gray-700">
