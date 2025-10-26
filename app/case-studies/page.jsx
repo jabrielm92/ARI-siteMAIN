@@ -231,9 +231,11 @@ export default function CaseStudiesPage() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <Tabs defaultValue="leadgen" className="max-w-6xl mx-auto">
-            <TabsList className="grid w-full grid-cols-2 mb-12">
-              <TabsTrigger value="leadgen" className="text-lg">Lead Gen Clients</TabsTrigger>
-              <TabsTrigger value="students" className="text-lg">Course Students</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-12">
+              <TabsTrigger value="leadgen" className="text-sm md:text-lg">Lead Gen</TabsTrigger>
+              <TabsTrigger value="receptionist" className="text-sm md:text-lg">AI Receptionist</TabsTrigger>
+              <TabsTrigger value="aba" className="text-sm md:text-lg">ABA</TabsTrigger>
+              <TabsTrigger value="students" className="text-sm md:text-lg">Students</TabsTrigger>
             </TabsList>
 
             {/* Lead Gen Cases */}
