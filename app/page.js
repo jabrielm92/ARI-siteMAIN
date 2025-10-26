@@ -35,17 +35,17 @@ export default function App() {
                 Learn to build AI-powered businesses with our courses, or let us implement AI automations for you. From appointment booking to lead generation—we help you leverage AI to increase revenue without scaling your workload.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-teal-500 hover:bg-teal-600 text-white" asChild>
+                <Button size="lg" className="bg-teal-500 hover:bg-teal-600 text-white w-full sm:w-auto" asChild>
                   <Link href="/courses">
                     Browse Courses <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-gray-600 text-gray-900 hover:bg-gray-100" asChild>
+                <Button size="lg" variant="outline" className="border-gray-600 text-gray-900 hover:bg-gray-100 w-full sm:w-auto" asChild>
                   <Link href="/contact">Contact Us</Link>
                 </Button>
               </div>
-              <div className="mt-6">
-                <Button size="lg" variant="outline" className="border-gray-600 text-gray-900 hover:bg-gray-100" asChild>
+              <div className="mt-4">
+                <Button size="lg" variant="outline" className="border-gray-600 text-gray-900 hover:bg-gray-100 w-full sm:w-auto" asChild>
                   <Link href="/solutions">Solutions For You</Link>
                 </Button>
               </div>
