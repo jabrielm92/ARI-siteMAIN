@@ -14,7 +14,7 @@ export default function Navbar() {
     { name: 'Courses', href: '/courses' },
     { name: 'Case Studies', href: '/case-studies' },
     { name: 'Resources', href: '/resources' },
-    { name: 'About', href: '/about' },
+    { name: 'About Us', href: '/about' },
   ];
 
   return (
