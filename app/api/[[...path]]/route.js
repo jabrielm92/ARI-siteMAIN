@@ -1,19 +1,20 @@
 import { NextResponse } from 'next/server';
 import { db as getDB } from '@/lib/firebase';
-import { collection, addDoc, getDoc, doc, updateDoc, query, where, getDocs, increment } from 'firebase/firestore';
+import { collection, addDoc as addDocWeb, getDoc as getDocWeb, doc as docWeb, updateDoc as updateDocWeb, query, where, getDocs, increment as incrementWeb } from 'firebase/firestore';
+import admin from 'firebase-admin';
+import { getAdminDB } from '@/lib/firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
 import { coursesData } from '@/lib/courses-data';
 import { generateDownloadToken, verifyDownloadToken } from '@/lib/download-link';
-import { Resend } from 'resend';
-import { put } from '@vercel/blob';
+import sgMail from '@sendgrid/mail';
 
-// Lazy initialize Resend to avoid build-time errors
-let resendClient = null;
-function getResendClient() {
-  if (!resendClient && process.env.RESEND_API_KEY) {
-    resendClient = new Resend(process.env.RESEND_API_KEY);
+// Lazy init SendGrid
+let sgInited = false;
+function initSendGrid() {
+  if (!sgInited && process.env.SENDGRID_API_KEY) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    sgInited = true;
   }
-  return resendClient;
 }
 
 // CORS headers
@@ -23,12 +24,52 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
+// Helper DB wrappers (Admin preferred)
+function usingAdmin() {
+  return !!getAdminDB();
+}
+
+async function addOrder(orderData) {
+  const adb = getAdminDB();
+  if (adb) {
+    const ref = await adb.collection('orders').add(orderData);
+    return { id: ref.id };
+  }
+  const docRef = await addDocWeb(collection(getDB(), 'orders'), orderData);
+  return { id: docRef.id };
+}
+
+async function getOrder(orderId) {
+  const adb = getAdminDB();
+  if (adb) {
+    const snap = await adb.collection('orders').doc(orderId).get();
+    return { exists: snap.exists, id: snap.id, data: () => snap.data() };
+  }
+  const snap = await getDocWeb(docWeb(getDB(), 'orders', orderId));
+  return { exists: snap.exists(), id: orderId, data: () => snap.data() };
+}
+
+async function incrementDownloads(orderId) {
+  const adb = getAdminDB();
+  if (adb) {
+    await adb.collection('orders').doc(orderId).update({
+      downloadAttempts: admin.firestore.FieldValue.increment(1),
+      lastDownloadAt: new Date().toISOString(),
+    });
+    return;
+  }
+  await updateDocWeb(docWeb(getDB(), 'orders', orderId), {
+    downloadAttempts: incrementWeb(1),
+    lastDownloadAt: new Date().toISOString(),
+  });
+}
+
 // Handle OPTIONS requests
 export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
-// PayPal API helper
+// PayPal API helper (kept for smart buttons path)
 async function paypalRequest(path, method = 'GET', body = null) {
   const auth = Buffer.from(
     `${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
@@ -42,33 +83,34 @@ async function paypalRequest(path, method = 'GET', body = null) {
     },
   };
 
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
+  if (body) options.body = JSON.stringify(body);
 
   const response = await fetch(`${process.env.PAYPAL_API_URL}${path}`, options);
   const data = await response.json();
-  
   return { status: response.status, data };
 }
 
-// Send email with download link
+// Send email with download link (SendGrid)
 async function sendDownloadEmail(email, orderData, downloadLink) {
   try {
-    const resend = getResendClient();
-    if (!resend) {
-      console.error('Resend client not initialized - email not sent');
+    initSendGrid();
+    if (!sgInited) {
+      console.error('SendGrid not configured - email not sent');
       return { success: false, error: 'Email service not configured' };
     }
-    
-    const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL,
+
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL;
+    const fromName = process.env.SENDGRID_FROM_NAME || 'ARI Solutions Inc';
+
+    const msg = {
       to: email,
+      from: { email: fromEmail, name: fromName },
       subject: `Your Course Download - ${orderData.courseName}`,
       html: `
         <!DOCTYPE html>
         <html>
           <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
             <style>
               body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
               .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -88,27 +130,22 @@ async function sendDownloadEmail(email, orderData, downloadLink) {
                 <h2>Hi there,</h2>
                 <p>Your payment has been successfully processed. You now have access to:</p>
                 <h3>${orderData.courseName}</h3>
-                
                 <div class="info-box">
                   <strong>Order Details:</strong><br>
                   Order ID: ${orderData.orderId}<br>
                   Amount Paid: $${orderData.amount}<br>
                   Date: ${new Date(orderData.createdAt).toLocaleDateString()}
                 </div>
-
                 <p><strong>Download Your Course:</strong></p>
                 <a href="${downloadLink}" class="button">Download Now</a>
-                
                 <p style="font-size: 14px; color: #666;">
                   <strong>Important:</strong><br>
-                  • This link expires in 72 hours<br>
+                  • This link may expire in 72 hours<br>
                   • You can download up to 3 times<br>
                   • Keep this email for your records<br>
                   • File size: ${orderData.sizeMb} MB
                 </p>
-
                 <p>If you have any questions or issues, reply to this email and we'll help you right away.</p>
-                
                 <p>Welcome to the ARI Solutions community!</p>
               </div>
               <div class="footer">
@@ -119,17 +156,13 @@ async function sendDownloadEmail(email, orderData, downloadLink) {
           </body>
         </html>
       `,
-    });
+    };
 
-    if (error) {
-      console.error('Email send error:', error);
-      return { success: false, error };
-    }
-
-    return { success: true, data };
+    await sgMail.send(msg);
+    return { success: true };
   } catch (error) {
-    console.error('Email send exception:', error);
-    return { success: false, error: error.message };
+    console.error('SendGrid email error:', error?.response?.body || error?.message || error);
+    return { success: false, error: error?.message || 'Email send failed' };
   }
 }
 
@@ -138,134 +171,53 @@ export async function GET(request) {
   const path = url.pathname.replace('/api', '');
 
   try {
-    // GET /api/courses - List all courses
+    // GET /api/courses
     if (path === '/courses') {
-      return NextResponse.json({
-        success: true,
-        courses: coursesData
-      }, { headers: corsHeaders });
+      return NextResponse.json({ success: true, courses: coursesData }, { headers: corsHeaders });
     }
 
-    // GET /api/courses/:slug - Get course by slug
+    // GET /api/courses/:slug
     if (path.startsWith('/courses/')) {
       const slug = path.replace('/courses/', '');
       const course = coursesData.find(c => c.slug === slug);
-      
-      if (!course) {
-        return NextResponse.json(
-          { success: false, error: 'Course not found' },
-          { status: 404, headers: corsHeaders }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        course
-      }, { headers: corsHeaders });
+      if (!course) return NextResponse.json({ success: false, error: 'Course not found' }, { status: 404, headers: corsHeaders });
+      return NextResponse.json({ success: true, course }, { headers: corsHeaders });
     }
 
-    // GET /api/orders/:orderId - Get order details
+    // GET /api/orders/:orderId
     if (path.startsWith('/orders/')) {
       const orderId = path.replace('/orders/', '');
-      
-      const orderDoc = await getDoc(doc(getDB(), 'orders', orderId));
-      
-      if (!orderDoc.exists()) {
-        return NextResponse.json(
-          { success: false, error: 'Order not found' },
-          { status: 404, headers: corsHeaders }
-        );
-      }
-
-      const orderData = { id: orderDoc.id, ...orderDoc.data() };
-      
-      // Generate download link if order is completed
+      const snap = await getOrder(orderId);
+      if (!snap.exists) return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404, headers: corsHeaders });
+      const orderData = { id: orderId, ...snap.data() };
       let downloadToken = null;
       if (orderData.status === 'completed') {
         const { token } = generateDownloadToken(orderId, orderData.courseId);
         downloadToken = token;
       }
-
-      return NextResponse.json({
-        success: true,
-        order: orderData,
-        downloadToken
-      }, { headers: corsHeaders });
+      return NextResponse.json({ success: true, order: orderData, downloadToken }, { headers: corsHeaders });
     }
 
-    // GET /api/download/:token - Download course file
+    // GET /api/download/:token
     if (path.startsWith('/download/')) {
       const token = path.replace('/download/', '');
-      
-      // Verify token
       const verification = verifyDownloadToken(token);
-      
-      if (!verification.valid) {
-        return NextResponse.json(
-          { success: false, error: verification.error },
-          { status: 403, headers: corsHeaders }
-        );
-      }
-
-      // Get order to check download attempts
-      const orderDoc = await getDoc(doc(getDB(), 'orders', verification.orderId));
-      
-      if (!orderDoc.exists()) {
-        return NextResponse.json(
-          { success: false, error: 'Order not found' },
-          { status: 404, headers: corsHeaders }
-        );
-      }
-
-      const orderData = orderDoc.data();
+      if (!verification.valid) return NextResponse.json({ success: false, error: verification.error }, { status: 403, headers: corsHeaders });
+      const snap = await getOrder(verification.orderId);
+      if (!snap.exists) return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404, headers: corsHeaders });
+      const orderData = snap.data();
       const maxAttempts = parseInt(process.env.MAX_DOWNLOAD_ATTEMPTS || '3');
-      
-      if (orderData.downloadAttempts >= maxAttempts) {
-        return NextResponse.json(
-          { success: false, error: 'Maximum download attempts reached' },
-          { status: 403, headers: corsHeaders }
-        );
-      }
-
-      // Increment download attempts
-      await updateDoc(doc(getDB(), 'orders', verification.orderId), {
-        downloadAttempts: increment(1),
-        lastDownloadAt: new Date().toISOString()
-      });
-
-      // Get course info
+      if ((orderData.downloadAttempts || 0) >= maxAttempts) return NextResponse.json({ success: false, error: 'Maximum download attempts reached' }, { status: 403, headers: corsHeaders });
+      await incrementDownloads(verification.orderId);
       const course = coursesData.find(c => c.id === orderData.courseId);
-      
-      if (!course) {
-        return NextResponse.json(
-          { success: false, error: 'Course not found' },
-          { status: 404, headers: corsHeaders }
-        );
-      }
-
-      // Check if course has download URL
-      if (!course.downloadUrl) {
-        return NextResponse.json(
-          { success: false, error: 'Course file not available. Please contact support.' },
-          { status: 404, headers: corsHeaders }
-        );
-      }
-
-      // Redirect to the actual Vercel Blob file
+      if (!course?.downloadUrl) return NextResponse.json({ success: false, error: 'Course file not available. Please contact support.' }, { status: 404, headers: corsHeaders });
       return NextResponse.redirect(course.downloadUrl, 302);
     }
 
-    return NextResponse.json(
-      { success: false, error: 'Endpoint not found' },
-      { status: 404, headers: corsHeaders }
-    );
-
+    return NextResponse.json({ success: false, error: 'Endpoint not found' }, { status: 404, headers: corsHeaders });
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500, headers: corsHeaders }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
 
@@ -276,234 +228,80 @@ export async function POST(request) {
   try {
     const body = await request.json();
 
-    // POST /api/paypal/create-order - Create PayPal order
     if (path === '/paypal/create-order') {
       const { courseId } = body;
-      
       const course = coursesData.find(c => c.id === courseId);
-      
-      if (!course) {
-        return NextResponse.json(
-          { success: false, error: 'Course not found' },
-          { status: 404, headers: corsHeaders }
-        );
-      }
-
-      // Create PayPal order
+      if (!course) return NextResponse.json({ success: false, error: 'Course not found' }, { status: 404, headers: corsHeaders });
       const { status, data } = await paypalRequest('/v2/checkout/orders', 'POST', {
         intent: 'CAPTURE',
-        purchase_units: [
-          {
-            reference_id: courseId,
-            description: course.title,
-            amount: {
-              currency_code: 'USD',
-              value: course.price.toFixed(2),
-            },
-          },
-        ],
-        application_context: {
-          brand_name: 'ARI Solutions Inc',
-          landing_page: 'NO_PREFERENCE',
-          user_action: 'PAY_NOW',
-          return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/${courseId}`,
-          cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/${courseId}`,
-        },
+        purchase_units: [{ reference_id: courseId, description: course.title, amount: { currency_code: 'USD', value: course.price.toFixed(2) } }],
+        application_context: { brand_name: 'ARI Solutions Inc', landing_page: 'NO_PREFERENCE', user_action: 'PAY_NOW', return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/${courseId}`, cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/${courseId}` },
       });
-
-      if (status !== 201) {
-        return NextResponse.json(
-          { success: false, error: 'Failed to create PayPal order', details: data },
-          { status: 500, headers: corsHeaders }
-        );
-      }
-
-      return NextResponse.json(
-        { success: true, orderId: data.id },
-        { headers: corsHeaders }
-      );
+      if (status !== 201) return NextResponse.json({ success: false, error: 'Failed to create PayPal order', details: data }, { status: 500, headers: corsHeaders });
+      return NextResponse.json({ success: true, orderId: data.id }, { headers: corsHeaders });
     }
 
-    // POST /api/paypal/capture - Capture PayPal order
     if (path === '/paypal/capture') {
       const { orderId, courseId, email } = body;
-
-      // Capture the order
-      const { status, data } = await paypalRequest(
-        `/v2/checkout/orders/${orderId}/capture`,
-        'POST'
-      );
-
-      if (status !== 201 || data.status !== 'COMPLETED') {
-        return NextResponse.json(
-          { success: false, error: 'Payment capture failed', details: data },
-          { status: 400, headers: corsHeaders }
-        );
-      }
-
-      // Get course info
+      const { status, data } = await paypalRequest(`/v2/checkout/orders/${orderId}/capture`, 'POST');
+      if (status !== 201 || data.status !== 'COMPLETED') return NextResponse.json({ success: false, error: 'Payment capture failed', details: data }, { status: 400, headers: corsHeaders });
       const course = coursesData.find(c => c.id === courseId);
-      
-      if (!course) {
-        return NextResponse.json(
-          { success: false, error: 'Course not found' },
-          { status: 404, headers: corsHeaders }
-        );
-      }
-
-      // Create order in Firestore
+      if (!course) return NextResponse.json({ success: false, error: 'Course not found' }, { status: 404, headers: corsHeaders });
       const captureAmount = parseFloat(data.purchase_units[0].payments.captures[0].amount.value);
       const customerEmail = email || data.payer?.email_address || 'customer@example.com';
-      
-      const orderData = {
-        orderId: uuidv4(),
-        courseId: course.id,
-        courseName: course.title,
-        courseSlug: course.slug,
-        email: customerEmail,
-        amount: captureAmount,
-        currency: 'USD',
-        status: 'completed',
-        paypalOrderId: orderId,
-        paypalCaptureId: data.purchase_units[0].payments.captures[0].id,
-        payerName: data.payer?.name?.given_name + ' ' + data.payer?.name?.surname || 'Customer',
-        sizeMb: course.sizeMb || 0,
-        downloadAttempts: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      const docRef = await addDoc(collection(getDB(), 'orders'), orderData);
-      const firestoreOrderId = docRef.id;
-
-      // Generate download token
+      const orderData = { orderId: uuidv4(), courseId: course.id, courseName: course.title, courseSlug: course.slug, email: customerEmail, amount: captureAmount, currency: 'USD', status: 'completed', paypalOrderId: orderId, paypalCaptureId: data.purchase_units[0].payments.captures[0].id, payerName: (data.payer?.name?.given_name + ' ' + data.payer?.name?.surname) || 'Customer', sizeMb: course.sizeMb || 0, downloadAttempts: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      const { id: firestoreOrderId } = await addOrder(orderData);
       const { token } = generateDownloadToken(firestoreOrderId, course.id);
       const downloadLink = `${process.env.NEXT_PUBLIC_BASE_URL}/orders/${firestoreOrderId}?token=${token}`;
-
-      // Send email
-      await sendDownloadEmail(customerEmail, {
-        ...orderData,
-        orderId: firestoreOrderId
-      }, downloadLink);
-
-      return NextResponse.json({
-        success: true,
-        orderId: firestoreOrderId,
-        downloadToken: token
-      }, { headers: corsHeaders });
+      await sendDownloadEmail(customerEmail, { ...orderData, orderId: firestoreOrderId }, downloadLink);
+      return NextResponse.json({ success: true, orderId: firestoreOrderId, downloadToken: token }, { headers: corsHeaders });
     }
 
-    // POST /api/paypal/process-hosted-payment - Process PayPal Hosted Button return
     if (path === '/paypal/process-hosted-payment') {
       const { transactionId, amount, currency, status, courseId } = body || {};
-
-      if (!transactionId || !status) {
-        return NextResponse.json(
-          { success: false, error: 'Missing transaction data' },
-          { status: 400, headers: corsHeaders }
-        );
-      }
-
-      if (String(status).toUpperCase() !== 'COMPLETED') {
-        return NextResponse.json(
-          { success: false, error: 'Payment was not completed' },
-          { status: 400, headers: corsHeaders }
-        );
-      }
-
+      if (!transactionId || !status) return NextResponse.json({ success: false, error: 'Missing transaction data' }, { status: 400, headers: corsHeaders });
+      if (String(status).toUpperCase() !== 'COMPLETED') return NextResponse.json({ success: false, error: 'Payment was not completed' }, { status: 400, headers: corsHeaders });
       const course = coursesData.find(c => c.id === courseId);
       const amt = parseFloat(amount || '0');
-
-      // Build order data
-      const orderData = {
-        orderId: uuidv4(),
-        courseId: course?.id || 'unknown',
-        courseName: course?.title || 'Course',
-        courseSlug: course?.slug || 'courses',
-        email: 'customer@example.com', // Not provided by hosted button; can be updated later
-        amount: isNaN(amt) ? (course?.price || 0) : amt,
-        currency: currency || 'USD',
-        status: 'completed',
-        paypalOrderId: transactionId,
-        paypalCaptureId: transactionId,
-        payerName: 'PayPal Hosted Buttons',
-        sizeMb: course?.sizeMb || 0,
-        downloadAttempts: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      // Try Firestore save; on failure, still return direct download URL so buyer isn't blocked
+      const orderData = { orderId: uuidv4(), courseId: course?.id || 'unknown', courseName: course?.title || 'Course', courseSlug: course?.slug || 'courses', email: 'customer@example.com', amount: isNaN(amt) ? (course?.price || 0) : amt, currency: currency || 'USD', status: 'completed', paypalOrderId: transactionId, paypalCaptureId: transactionId, payerName: 'PayPal Hosted Buttons', sizeMb: course?.sizeMb || 0, downloadAttempts: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
       try {
-        const docRef = await addDoc(collection(getDB(), 'orders'), orderData);
-        const firestoreOrderId = docRef.id;
+        const { id: firestoreOrderId } = await addOrder(orderData);
         const { token } = generateDownloadToken(firestoreOrderId, course?.id);
-        return NextResponse.json({
-          success: true,
-          orderId: firestoreOrderId,
-          downloadToken: token,
-        }, { headers: corsHeaders });
+        return NextResponse.json({ success: true, orderId: firestoreOrderId, downloadToken: token }, { headers: corsHeaders });
       } catch (err) {
         console.error('Hosted payment Firestore error:', err?.message || err);
-        return NextResponse.json({
-          success: true,
-          orderSaved: false,
-          directDownloadUrl: course?.downloadUrl || null,
-        }, { headers: corsHeaders });
+        return NextResponse.json({ success: true, orderSaved: false, directDownloadUrl: course?.downloadUrl || null }, { headers: corsHeaders });
       }
     }
 
-    // POST /api/orders/lookup - Look up order by email or order ID
     if (path === '/orders/lookup') {
       const { email, orderId } = body;
-
       if (orderId) {
-        const orderDoc = await getDoc(doc(getDB(), 'orders', orderId));
-        
-        if (!orderDoc.exists()) {
-          return NextResponse.json(
-            { success: false, error: 'Order not found' },
-            { status: 404, headers: corsHeaders }
-          );
-        }
-
-        return NextResponse.json({
-          success: true,
-          order: { id: orderDoc.id, ...orderDoc.data() }
-        }, { headers: corsHeaders });
+        const snap = await getOrder(orderId);
+        if (!snap.exists) return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404, headers: corsHeaders });
+        return NextResponse.json({ success: true, order: { id: orderId, ...snap.data() } }, { headers: corsHeaders });
       }
-
       if (email) {
-        const q = query(collection(getDB(), 'orders'), where('email', '==', email));
-        const querySnapshot = await getDocs(q);
-        
-        const orders = [];
-        querySnapshot.forEach((doc) => {
-          orders.push({ id: doc.id, ...doc.data() });
-        });
-
-        return NextResponse.json({
-          success: true,
-          orders
-        }, { headers: corsHeaders });
+        // For Admin DB, use query; for Web SDK use existing
+        if (usingAdmin()) {
+          const adb = getAdminDB();
+          const qSnap = await adb.collection('orders').where('email', '==', email).get();
+          const orders = qSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          return NextResponse.json({ success: true, orders }, { headers: corsHeaders });
+        } else {
+          const q = query(collection(getDB(), 'orders'), where('email', '==', email));
+          const querySnapshot = await getDocs(q);
+          const orders = [];
+          querySnapshot.forEach((d) => orders.push({ id: d.id, ...d.data() }));
+          return NextResponse.json({ success: true, orders }, { headers: corsHeaders });
+        }
       }
-
-      return NextResponse.json(
-        { success: false, error: 'Email or order ID required' },
-        { status: 400, headers: corsHeaders }
-      );
+      return NextResponse.json({ success: false, error: 'Email or order ID required' }, { status: 400, headers: corsHeaders });
     }
 
-    return NextResponse.json(
-      { success: false, error: 'Endpoint not found' },
-      { status: 404, headers: corsHeaders }
-    );
-
+    return NextResponse.json({ success: false, error: 'Endpoint not found' }, { status: 404, headers: corsHeaders });
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500, headers: corsHeaders }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
