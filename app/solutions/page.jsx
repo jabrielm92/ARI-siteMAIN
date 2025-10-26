@@ -34,7 +34,7 @@ export default function SolutionsPage() {
                 Schedule Free Consultation
               </a>
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-600 text-white hover:bg-gray-800 w-full sm:w-auto" asChild>
+            <Button size="lg" variant="outline" className="border-gray-600 text-black hover:bg-gray-200 w-full sm:w-auto" asChild>
               <Link href="/contact">
                 Contact Us
               </Link>
