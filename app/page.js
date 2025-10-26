@@ -139,7 +139,7 @@ export default function App() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="relative h-64 md:h-auto">
                     <img
-                      src={featuredCourse.heroImage}
+                      src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80"
                       alt={featuredCourse.title}
                       className="w-full h-full object-cover"
                     />
