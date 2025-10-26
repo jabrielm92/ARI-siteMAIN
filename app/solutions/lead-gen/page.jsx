@@ -14,8 +14,11 @@ export default function LeadGenPage() {
   const [activeTab, setActiveTab] = useState('pilot');
 
   return (
-      <head>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+    <div className="min-h-screen bg-background">
+      {/* FAQPage JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'FAQPage',
           mainEntity: [
@@ -44,10 +47,8 @@ export default function LeadGenPage() {
               }
             }
           ]
-        }) }} />
-      </head>
-
-    <div className="min-h-screen bg-background">
+        }) }}
+      />
       <Navbar />
 
       {/* Hero Section */}
