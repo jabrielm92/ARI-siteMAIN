@@ -7,6 +7,7 @@ import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { CheckCircle2, Download, Mail, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { coursesData } from '@/lib/courses-data';
@@ -17,6 +18,8 @@ function OrderSuccessInner() {
   const [error, setError] = useState(null);
   const [orderId, setOrderId] = useState(null);
   const [downloadHref, setDownloadHref] = useState(null);
+  const [emailForReceipt, setEmailForReceipt] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   const tx = searchParams.get('tx');
   const amount = searchParams.get('am') || searchParams.get('amt');
@@ -24,13 +27,19 @@ function OrderSuccessInner() {
   const currency = searchParams.get('cr') || searchParams.get('cc');
   const courseIdParam = searchParams.get('courseId');
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('checkoutEmail') || '';
+      if (saved) setEmailForReceipt(saved);
+    }
+  }, []);
+
   const course = useMemo(() => {
     if (courseIdParam) {
       return coursesData.find(c => c.id === courseIdParam) || null;
     }
     if (amount) {
       const amtNum = parseFloat(amount);
-      // Match on price if courseId missing
       const found = coursesData.find(c => Number(c.price) === amtNum);
       return found || null;
     }
@@ -56,6 +65,7 @@ function OrderSuccessInner() {
             currency,
             status,
             courseId: course?.id,
+            buyerEmail: emailForReceipt || undefined,
           })
         });
 
@@ -69,12 +79,13 @@ function OrderSuccessInner() {
           } else if (data.directDownloadUrl) {
             setDownloadHref(data.directDownloadUrl);
           }
+
+          if (emailForReceipt) setEmailSent(true);
         } else {
           setError(data?.error || 'Failed to process order');
         }
       } catch (err) {
         console.error('Hosted payment processing failed', err);
-        // Even if server failed, allow direct download if we know course file
         if (course?.downloadUrl) setDownloadHref(course.downloadUrl);
       } finally {
         setLoading(false);
@@ -82,7 +93,22 @@ function OrderSuccessInner() {
     };
 
     processOrder();
-  }, [tx, amount, currency, status, course?.id]);
+  }, [tx, amount, currency, status, course?.id, emailForReceipt]);
+
+  const sendReceipt = async () => {
+    if (!orderId || !emailForReceipt) return;
+    try {
+      const resp = await fetch('/api/orders/send-receipt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, email: emailForReceipt })
+      });
+      const d = await resp.json();
+      if (d?.success) setEmailSent(true);
+    } catch (e) {
+      console.error('Send receipt failed', e);
+    }
+  };
 
   if (loading) {
     return (
@@ -150,7 +176,7 @@ function OrderSuccessInner() {
               </p>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg text-sm">
                 <Mail className="w-4 h-4 text-blue-600" />
-                <span>Confirmation email sent to your inbox</span>
+                <span>{emailSent ? 'Receipt sent to your email' : 'You can receive a receipt via email'}</span>
               </div>
             </CardContent>
           </Card>
@@ -181,6 +207,22 @@ function OrderSuccessInner() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Email capture if missing */}
+          {!emailSent && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Send Receipt</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-3 flex-col sm:flex-row">
+                  <Input type="email" value={emailForReceipt} onChange={(e) => setEmailForReceipt(e.target.value)} placeholder="you@example.com" className="flex-1" />
+                  <Button onClick={sendReceipt} disabled={!orderId || !emailForReceipt}>Send</Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">We’ll send your receipt with the download link.</p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Download Section */}
           <Card>

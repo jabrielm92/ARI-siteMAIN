@@ -8,6 +8,7 @@ import PayPalButton from '@/components/paypal-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { CheckCircle2, Shield, Lock, ArrowLeft } from 'lucide-react';
 import { coursesData } from '@/lib/courses-data';
 import Link from 'next/link';
@@ -17,6 +18,7 @@ export default function CheckoutPage() {
   const params = useParams();
   const [course, setCourse] = useState(null);
   const [paypalReady, setPaypalReady] = useState(false);
+  const [buyerEmail, setBuyerEmail] = useState('');
 
   // Map course IDs to hosted button IDs
   const hostedButtons = useMemo(() => ({
@@ -30,6 +32,14 @@ export default function CheckoutPage() {
   }, [params.courseId]);
 
   useEffect(() => {
+    // Hydrate saved email
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('checkoutEmail') || '';
+      if (saved) setBuyerEmail(saved);
+    }
+  }, []);
+
+  useEffect(() => {
     // Initialize hosted button after SDK loads
     if (
       paypalReady &&
@@ -40,7 +50,6 @@ export default function CheckoutPage() {
     ) {
       try {
         const containerSelector = `#paypal-container-${hostedButtons[course.id]}`;
-        // Avoid double render if already present
         const container = document.querySelector(containerSelector);
         if (container && container.childElementCount === 0) {
           window.paypal
@@ -52,6 +61,14 @@ export default function CheckoutPage() {
       }
     }
   }, [paypalReady, course?.id, hostedButtons]);
+
+  const onEmailChange = (e) => {
+    const val = e.target.value;
+    setBuyerEmail(val);
+    try {
+      if (typeof window !== 'undefined') sessionStorage.setItem('checkoutEmail', val);
+    } catch {}
+  };
 
   if (!course) {
     return (
@@ -117,6 +134,13 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
+                  {/* Email for receipt */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Email for receipt (optional)</label>
+                    <Input type="email" value={buyerEmail} onChange={onEmailChange} placeholder="you@example.com" />
+                    <p className="text-xs text-muted-foreground">We’ll email your receipt and download link here.</p>
+                  </div>
+
                   {/* Payment Section */}
                   <div>
                     <h3 className="font-semibold mb-4">Complete Your Purchase</h3>
@@ -125,7 +149,7 @@ export default function CheckoutPage() {
                       <div>
                         <div id={`paypal-container-${hostedId}`} />
                         <p className="text-xs text-muted-foreground mt-3">
-                          Secured by PayPal. After payment you will be redirected back to the course to download.
+                          Secured by PayPal. After payment you will be redirected to order success.
                         </p>
                       </div>
                     ) : (
