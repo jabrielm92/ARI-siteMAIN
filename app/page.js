@@ -83,6 +83,56 @@ export default function App() {
         </div>
       </section>
 
+      {/* Why Choose ARI Solutions */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose ARI Solutions?</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              We're not just teaching AI theory—we're delivering practical, AI-powered income systems.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card>
+              <CardHeader>
+                <Zap className="w-12 h-12 text-teal-500 mb-4" />
+                <CardTitle>Build or Buy</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Learn to build AI-powered systems yourself with our courses, or have our expert team implement them for you.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Target className="w-12 h-12 text-teal-500 mb-4" />
+                <CardTitle>Outcome-Focused</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Every course and service is designed around one goal: leveraging AI to increase your income while reducing your workload.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <TrendingUp className="w-12 h-12 text-teal-500 mb-4" />
+                <CardTitle>Proven Results</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Our AI-powered systems have generated over $2M in revenue for our clients and saved thousands of hours through intelligent automation.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Solutions Strip */}
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
