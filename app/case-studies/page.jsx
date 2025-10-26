@@ -311,6 +311,142 @@ export default function CaseStudiesPage() {
               ))}
             </TabsContent>
 
+            {/* AI Receptionist Cases */}
+            <TabsContent value="receptionist" className="space-y-12">
+              {aiReceptionistCases.map((caseStudy, idx) => (
+                <Card key={idx} className="overflow-hidden">
+                  <div className="bg-gradient-to-r from-teal-500/10 to-teal-600/10 p-6 border-b">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div>
+                        <h2 className="text-2xl font-bold mb-2">{caseStudy.company}</h2>
+                        <Badge variant="outline">{caseStudy.industry}</Badge>
+                      </div>
+                      <div className="flex gap-4 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Timeline</p>
+                          <p className="font-semibold">{caseStudy.timeline}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Investment</p>
+                          <p className="font-semibold">{caseStudy.investment}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <CardContent className="p-6 space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                          <span className="w-8 h-8 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 text-sm">!</span>
+                          Challenge
+                        </h3>
+                        <p className="text-muted-foreground">{caseStudy.challenge}</p>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                          <CheckCircle2 className="w-5 h-5 text-teal-500" />
+                          Solution
+                        </h3>
+                        <p className="text-muted-foreground">{caseStudy.solution}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 py-6 border-y">
+                      {caseStudy.results.map((result, resultIdx) => (
+                        <div key={resultIdx} className="text-center">
+                          <result.icon className="w-8 h-8 text-teal-500 mx-auto mb-2" />
+                          <div className="text-2xl font-bold text-teal-600 mb-1">{result.metric}</div>
+                          <div className="text-sm text-muted-foreground">{result.desc}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="bg-muted p-6 rounded-lg">
+                      <div className="flex items-start gap-4">
+                        <Star className="w-6 h-6 text-yellow-400 fill-yellow-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-lg italic mb-3">"{caseStudy.testimonial}"</p>
+                          <div>
+                            <p className="font-semibold">{caseStudy.author}</p>
+                            <p className="text-sm text-muted-foreground">{caseStudy.role}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </TabsContent>
+
+            {/* ABA Cases */}
+            <TabsContent value="aba" className="space-y-12">
+              {abaCases.map((caseStudy, idx) => (
+                <Card key={idx} className="overflow-hidden">
+                  <div className="bg-gradient-to-r from-teal-500/10 to-teal-600/10 p-6 border-b">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div>
+                        <h2 className="text-2xl font-bold mb-2">{caseStudy.company}</h2>
+                        <Badge variant="outline">{caseStudy.industry}</Badge>
+                      </div>
+                      <div className="flex gap-4 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Timeline</p>
+                          <p className="font-semibold">{caseStudy.timeline}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Investment</p>
+                          <p className="font-semibold">{caseStudy.investment}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <CardContent className="p-6 space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                          <span className="w-8 h-8 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 text-sm">!</span>
+                          Challenge
+                        </h3>
+                        <p className="text-muted-foreground">{caseStudy.challenge}</p>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                          <CheckCircle2 className="w-5 h-5 text-teal-500" />
+                          Solution
+                        </h3>
+                        <p className="text-muted-foreground">{caseStudy.solution}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 py-6 border-y">
+                      {caseStudy.results.map((result, resultIdx) => (
+                        <div key={resultIdx} className="text-center">
+                          <result.icon className="w-8 h-8 text-teal-500 mx-auto mb-2" />
+                          <div className="text-2xl font-bold text-teal-600 mb-1">{result.metric}</div>
+                          <div className="text-sm text-muted-foreground">{result.desc}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="bg-muted p-6 rounded-lg">
+                      <div className="flex items-start gap-4">
+                        <Star className="w-6 h-6 text-yellow-400 fill-yellow-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-lg italic mb-3">"{caseStudy.testimonial}"</p>
+                          <div>
+                            <p className="font-semibold">{caseStudy.author}</p>
+                            <p className="text-sm text-muted-foreground">{caseStudy.role}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </TabsContent>
+
             {/* Student Success Stories */}
             <TabsContent value="students" className="space-y-8">
               {studentSuccess.map((student, idx) => (
