@@ -96,14 +96,9 @@ export default function CourseDetailPage() {
                   </>
                 )}
               </div>
-              <div className="flex gap-4">
-                <Button size="lg" className="bg-teal-500 hover:bg-teal-600" asChild>
-                  <Link href={`/checkout/${course.id}`}>Proceed to Checkout</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/courses">Browse Courses</Link>
-                </Button>
-              </div>
+              <Button size="lg" className="bg-teal-500 hover:bg-teal-600" asChild>
+                <Link href={`/checkout/${course.id}`}>Proceed to Checkout</Link>
+              </Button>
             </div>
             <div className="relative">
               <div className="aspect-video rounded-xl overflow-hidden shadow-2xl border border-gray-700">
