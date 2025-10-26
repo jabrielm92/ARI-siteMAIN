@@ -21,18 +21,17 @@ export async function POST(request) {
       );
     }
 
-    const resend = getResendClient();
-    
-    if (!resend) {
-      console.error('Resend not configured, logging form submission:', body);
-      // Still return success so user gets confirmation
+    initSendGrid();
+
+    if (!process.env.SENDGRID_API_KEY) {
+      console.error('SendGrid not configured, logging form submission:', body);
       return NextResponse.json({ success: true });
     }
 
     // Send email notification
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL,
+    await sgMail.send({
       to: 'arisolutionsinc@gmail.com',
+      from: { email: process.env.SENDGRID_FROM_EMAIL, name: process.env.SENDGRID_FROM_NAME || 'ARI Solutions Inc' },
       subject: `Contact Form: ${subject}`,
       html: `
         <h2>New Contact Form Submission</h2>
