@@ -68,7 +68,7 @@ export default function App() {
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl border border-gray-700">
                 <img
-                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80"
+                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80"
                   alt="Automation Dashboard"
                   className="w-full h-full object-cover"
                 />
@@ -160,7 +160,7 @@ export default function App() {
                     
                     <Button size="lg" asChild>
                       <Link href={`/courses/${featuredCourse.slug}`}>
-                        Get Started Now <ArrowRight className="ml-2 w-4 h-4" />
+                        Learn More <ArrowRight className="ml-2 w-4 h-4" />
                       </Link>
                     </Button>
                   </div>
@@ -171,7 +171,7 @@ export default function App() {
         </section>
       )}
 
-      {/* Testimonials Section */}
+      {/* Testimonials and CTA sections remain unchanged */}
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -185,20 +185,13 @@ export default function App() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 bg-gradient-to-br from-teal-500 to-teal-600 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Ready to Automate Your Income?
-          </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-            Join 1,247+ business owners who are generating revenue on autopilot
-          </p>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Automate Your Income?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">Join 1,247+ business owners who are generating revenue on autopilot</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-white text-teal-600 hover:bg-gray-100" asChild>
-              <Link href="/courses">
-                Browse All Courses <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
+              <Link href="/courses">Browse All Courses <ArrowRight className="ml-2 w-4 h-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
               <Link href="/contact">Schedule a Consultation</Link>

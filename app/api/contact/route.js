@@ -1,13 +1,7 @@
 import { NextResponse } from 'next/server';
-import sgMail from '@sendgrid/mail';
-
-let sgInited = false;
-function initSendGrid() {
-  if (!sgInited && process.env.SENDGRID_API_KEY) {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    sgInited = true;
-  }
-}
+import { getAdminDB } from '@/lib/firebase-admin';
+import { db as getDB } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 export async function POST(request) {
   try {
@@ -21,29 +15,21 @@ export async function POST(request) {
       );
     }
 
-    initSendGrid();
+    const docData = {
+      name,
+      email,
+      subject,
+      message,
+      createdAt: new Date().toISOString(),
+      source: 'website-contact-form'
+    };
 
-    if (!process.env.SENDGRID_API_KEY) {
-      console.error('SendGrid not configured, logging form submission:', body);
-      return NextResponse.json({ success: true });
+    const adb = getAdminDB();
+    if (adb) {
+      await adb.collection('contacts').add(docData);
+    } else {
+      await addDoc(collection(getDB(), 'contacts'), docData);
     }
-
-    // Send email notification
-    await sgMail.send({
-      to: 'arisolutionsinc@gmail.com',
-      from: { email: process.env.SENDGRID_FROM_EMAIL, name: process.env.SENDGRID_FROM_NAME || 'ARI Solutions Inc' },
-      subject: `Contact Form: ${subject}`,
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, '<br>')}</p>
-        <hr>
-        <p><small>Sent from ARI Solutions contact form</small></p>
-      `,
-    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

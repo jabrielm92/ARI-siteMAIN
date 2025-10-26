@@ -19,12 +19,9 @@ export default function CheckoutPage() {
   const [course, setCourse] = useState(null);
   const [paypalReady, setPaypalReady] = useState(false);
   const [buyerEmail, setBuyerEmail] = useState('');
+  const [lastSaved, setLastSaved] = useState(0);
 
-  // Map course IDs to hosted button IDs
-  const hostedButtons = useMemo(() => ({
-    'course-001': 'BJCMXAD6THUMN',
-    'course-002': '9T7AEK8G2N5VC',
-  }), []);
+  const hostedButtons = useMemo(() => ({ 'course-001': 'BJCMXAD6THUMN', 'course-002': '9T7AEK8G2N5VC' }), []);
 
   useEffect(() => {
     const foundCourse = coursesData.find(c => c.id === params.courseId);
@@ -32,7 +29,6 @@ export default function CheckoutPage() {
   }, [params.courseId]);
 
   useEffect(() => {
-    // Hydrate saved email
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('checkoutEmail') || '';
       if (saved) setBuyerEmail(saved);
@@ -40,7 +36,6 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    // Initialize hosted button after SDK loads
     if (
       paypalReady &&
       course?.id &&
@@ -52,9 +47,7 @@ export default function CheckoutPage() {
         const containerSelector = `#paypal-container-${hostedButtons[course.id]}`;
         const container = document.querySelector(containerSelector);
         if (container && container.childElementCount === 0) {
-          window.paypal
-            .HostedButtons({ hostedButtonId: hostedButtons[course.id] })
-            .render(containerSelector);
+          window.paypal.HostedButtons({ hostedButtonId: hostedButtons[course.id] }).render(containerSelector);
         }
       } catch (e) {
         console.error('PayPal HostedButtons render error:', e);
@@ -62,12 +55,23 @@ export default function CheckoutPage() {
     }
   }, [paypalReady, course?.id, hostedButtons]);
 
+  // Save checkout email to Firestore via API (debounced)
+  useEffect(() => {
+    const now = Date.now();
+    if (!course?.id || !buyerEmail || buyerEmail.length < 5) return;
+    if (now - lastSaved < 1500) return; // debounce ~1.5s
+    setLastSaved(now);
+    fetch('/api/checkout/save-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: buyerEmail, courseId: course.id })
+    }).catch(() => {});
+  }, [buyerEmail, course?.id]);
+
   const onEmailChange = (e) => {
     const val = e.target.value;
     setBuyerEmail(val);
-    try {
-      if (typeof window !== 'undefined') sessionStorage.setItem('checkoutEmail', val);
-    } catch {}
+    try { sessionStorage.setItem('checkoutEmail', val); } catch {}
   };
 
   if (!course) {
@@ -92,13 +96,8 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Load PayPal Hosted Buttons SDK only when needed */}
       {hostedId && (
-        <Script
-          src="https://www.paypal.com/sdk/js?client-id=BAA34wmSRHhP-8DTw_xDBKVdfalQt8ad14Lt8k0on6OqRLiETM7ae3_4RVnU2VThlBbSd-cweMeBdlk-Hw&components=hosted-buttons&enable-funding=venmo&currency=USD"
-          strategy="afterInteractive"
-          onLoad={() => setPaypalReady(true)}
-        />
+        <Script src="https://www.paypal.com/sdk/js?client-id=BAA34wmSRHhP-8DTw_xDBKVdfalQt8ad14Lt8k0on6OqRLiETM7ae3_4RVnU2VThlBbSd-cweMeBdlk-Hw&components=hosted-buttons&enable-funding=venmo&currency=USD" strategy="afterInteractive" onLoad={() => setPaypalReady(true)} />
       )}
 
       <div className="container mx-auto px-4 py-12">
@@ -111,21 +110,15 @@ export default function CheckoutPage() {
           </Button>
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Order Summary */}
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="text-2xl">Checkout</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Course Info */}
                   <div className="flex gap-4 p-4 bg-muted rounded-lg">
                     <div className="relative w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden">
-                      <img
-                        src={course.heroImage}
-                        alt={course.title}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={course.heroImage} alt={course.title} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                       <Badge className="mb-2">{course.category}</Badge>
@@ -134,14 +127,12 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* Email for receipt */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Email for receipt (optional)</label>
                     <Input type="email" value={buyerEmail} onChange={onEmailChange} placeholder="you@example.com" />
                     <p className="text-xs text-muted-foreground">We’ll email your receipt and download link here.</p>
                   </div>
 
-                  {/* Payment Section */}
                   <div>
                     <h3 className="font-semibold mb-4">Complete Your Purchase</h3>
 
@@ -153,15 +144,10 @@ export default function CheckoutPage() {
                         </p>
                       </div>
                     ) : (
-                      <PayPalButton
-                        courseId={course.id}
-                        courseSlug={course.slug}
-                        amount={course.price}
-                      />
+                      <PayPalButton courseId={course.id} courseSlug={course.slug} amount={course.price} />
                     )}
                   </div>
 
-                  {/* Security Badges */}
                   <div className="flex items-center justify-center gap-6 pt-6 border-t text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4" />
@@ -176,7 +162,6 @@ export default function CheckoutPage() {
               </Card>
             </div>
 
-            {/* What's Included */}
             <div className="lg:col-span-1">
               <Card className="sticky top-20">
                 <CardHeader>
@@ -194,12 +179,8 @@ export default function CheckoutPage() {
 
                   <div className="mt-6 pt-6 border-t">
                     <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-lg">
-                      <p className="text-sm font-semibold text-green-700 dark:text-green-400 mb-2">
-                        30-Day Money-Back Guarantee
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Not satisfied? Get a full refund within 30 days, no questions asked.
-                      </p>
+                      <p className="text-sm font-semibold text-green-700 dark:text-green-400 mb-2">30-Day Money-Back Guarantee</p>
+                      <p className="text-xs text-muted-foreground">Not satisfied? Get a full refund within 30 days, no questions asked.</p>
                     </div>
                   </div>
 
