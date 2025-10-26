@@ -14,6 +14,39 @@ export default function LeadGenPage() {
   const [activeTab, setActiveTab] = useState('pilot');
 
   return (
+      <head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: 'How quickly can I see leads?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Most pilots start generating leads within 7–14 days depending on targeting and territory.'
+              }
+            },
+            {
+              '@type': 'Question',
+              name: 'Do you guarantee lead quality?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Yes. We include replacement credits for invalid leads and maintain strict TCPA/DNC compliance.'
+              }
+            },
+            {
+              '@type': 'Question',
+              name: 'What pricing models are available?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'We offer Pilot (refundable retainer), Pay-Per-Lead, and Pay-Per-Show options depending on goals.'
+              }
+            }
+          ]
+        }) }} />
+      </head>
+
     <div className="min-h-screen bg-background">
       <Navbar />
 
