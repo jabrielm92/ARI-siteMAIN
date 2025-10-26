@@ -12,6 +12,25 @@ export default function AIReceptionistPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <head>
+        <JsonLd data={{
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: 'AI Virtual Receptionist',
+          provider: { '@type': 'Organization', name: 'ARI Solutions Inc' },
+          areaServed: 'US',
+          serviceType: 'AI Receptionist',
+          description: 'AI-powered receptionist that answers calls 24/7, qualifies leads, provides quotes, and books appointments.',
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'USD',
+            price: 197,
+            url: `${process.env.NEXT_PUBLIC_BASE_URL}/solutions/ai-receptionist`,
+            availability: 'https://schema.org/InStock'
+          }
+        }} />
+      </head>
+
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-20">
