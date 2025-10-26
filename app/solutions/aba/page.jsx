@@ -12,6 +12,25 @@ export default function ABAPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <head>
+        <JsonLd data={{
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: 'Appointment Booking Accelerator',
+          provider: { '@type': 'Organization', name: 'ARI Solutions Inc' },
+          areaServed: 'US',
+          serviceType: 'Appointment Booking System',
+          description: 'Done-for-you automated appointment booking system with payments, reminders, and analytics.',
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'USD',
+            price: 97,
+            url: `${process.env.NEXT_PUBLIC_BASE_URL}/solutions/aba`,
+            availability: 'https://schema.org/InStock'
+          }
+        }} />
+      </head>
+
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-20">
