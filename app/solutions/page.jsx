@@ -15,26 +15,87 @@ export default function SolutionsPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <Badge className="mb-6 bg-teal-500/20 text-teal-300 border-teal-500/30">
+      <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-12 md:py-20">
+        <div className="container mx-auto px-4 sm:px-6 text-center">
+          <Badge className="mb-4 md:mb-6 bg-teal-500/20 text-teal-300 border-teal-500/30">
             Done-For-You Solutions
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 md:mb-6">
             Let Us Build Your
             <br />
             <span className="text-teal-400">Automation System</span>
           </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-6 md:mb-8">
             Don't have time to learn? Our expert team will build custom automation systems for your business—from appointment booking to lead generation and everything in between.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button size="lg" className="bg-teal-500 hover:bg-teal-600 w-full sm:w-auto" asChild>
+              <a href="https://calendly.com/arisolutionsinc/30min" target="_blank" rel="noopener noreferrer">
+                Schedule Free Consultation
+              </a>
+            </Button>
+            <Button size="lg" variant="outline" className="border-gray-600 text-white hover:bg-gray-800 w-full sm:w-auto" asChild>
+              <Link href="/contact">
+                Contact Us
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Value Proposition */}
+      <section className="py-12 md:py-16 bg-background">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">Why Choose Done-For-You Solutions?</h2>
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+              Skip the learning curve and get results faster with our expert implementation
+            </p>
+          </div>
+          
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-6xl mx-auto">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-3xl md:text-4xl font-bold text-teal-500 mb-2">24-48hrs</div>
+                <h3 className="font-semibold mb-2">Fast Implementation</h3>
+                <p className="text-sm text-muted-foreground">Get your system up and running in days, not months</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-3xl md:text-4xl font-bold text-teal-500 mb-2">100%</div>
+                <h3 className="font-semibold mb-2">Custom Built</h3>
+                <p className="text-sm text-muted-foreground">Tailored specifically to your business needs and workflow</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-3xl md:text-4xl font-bold text-teal-500 mb-2">24/7</div>
+                <h3 className="font-semibold mb-2">Always Working</h3>
+                <p className="text-sm text-muted-foreground">Automated systems that generate leads and book appointments round-the-clock</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-3xl md:text-4xl font-bold text-teal-500 mb-2">30-Day</div>
+                <h3 className="font-semibold mb-2">Money-Back Guarantee</h3>
+                <p className="text-sm text-muted-foreground">Risk-free pilot programs with full refund if not satisfied</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
       {/* Solutions Grid */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+      <section className="py-12 md:py-20 bg-muted/50">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">Our Solutions</h2>
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+              Choose the solution that fits your business needs
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
             {servicesData.map((service) => (
               <Card key={service.id} className="group hover:shadow-2xl transition-all overflow-hidden flex flex-col">
                 <div className="relative h-64 overflow-hidden">
