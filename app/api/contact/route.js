@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import sgMail from '@sendgrid/mail';
 
-let resendClient = null;
-function getResendClient() {
-  if (!resendClient && process.env.RESEND_API_KEY) {
-    resendClient = new Resend(process.env.RESEND_API_KEY);
+let sgInited = false;
+function initSendGrid() {
+  if (!sgInited && process.env.SENDGRID_API_KEY) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    sgInited = true;
   }
-  return resendClient;
 }
 
 export async function POST(request) {
