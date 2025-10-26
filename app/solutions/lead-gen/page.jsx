@@ -9,17 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  CheckCircle2, 
-  Calendar, 
-  Mail, 
-  TrendingUp,
-  Target,
-  Shield,
-  BarChart3,
-  Zap,
-  Star
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CheckCircle2, Target, Filter, Mail, Database, TrendingUp, Shield, Calendar, Phone, DollarSign, Users, Zap, BarChart, Lock, AlertCircle, Calculator, ArrowRight, TrendingDown } from 'lucide-react';
 import JsonLd from '@/components/jsonld';
 import { servicesData } from '@/lib/courses-data';
 
@@ -27,26 +18,92 @@ export default function LeadGenPage() {
   const service = servicesData.find((s) => s.slug === 'lead-gen');
 
   // ROI Calculator State
-  const [costPerLead, setCostPerLead] = useState(150);
-  const [adSpend, setAdSpend] = useState(5000);
-  const [leadToClose, setLeadToClose] = useState(10);
-  const [customerValue, setCustomerValue] = useState(2000);
-  
-  // Calculate metrics
-  const currentLeads = Math.floor(adSpend / costPerLead);
-  const additionalLeads = Math.floor(currentLeads * 0.35); // ARI brings 35% more leads
-  const totalLeads = currentLeads + additionalLeads;
-  
-  const ariCostPerLead = costPerLead * 0.65; // 35% lower cost
-  const ariLeads = Math.floor(adSpend / ariCostPerLead);
-  
-  const currentCloseRate = leadToClose / 100;
-  const ariCloseRate = currentCloseRate * 1.3; // 30% better close rate
-  
-  const currentRevenue = currentLeads * currentCloseRate * customerValue;
-  const ariRevenue = ariLeads * ariCloseRate * customerValue;
-  const additionalRevenue = ariRevenue - currentRevenue;
-  const roiIncrease = ((additionalRevenue / adSpend) * 100).toFixed(0);
+  const [showResults, setShowResults] = useState(false);
+  const [calculatorInputs, setCalculatorInputs] = useState({
+    currentCostPerLead: '',
+    currentCloseRate: '',
+    avgCustomerValue: '',
+    leadsPerMonth: '',
+    currentAdSpend: '',
+    additionalLeads: '30'
+  });
+
+  const handleInputChange = (field, value) => {
+    setCalculatorInputs(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const calculateROI = () => {
+    const costPerLead = parseFloat(calculatorInputs.currentCostPerLead) || 0;
+    const closeRate = parseFloat(calculatorInputs.currentCloseRate) || 0;
+    const customerValue = parseFloat(calculatorInputs.avgCustomerValue) || 0;
+    const leadsPerMonth = parseFloat(calculatorInputs.leadsPerMonth) || 0;
+    const currentAdSpend = parseFloat(calculatorInputs.currentAdSpend) || 0;
+    const additionalLeads = parseFloat(calculatorInputs.additionalLeads) || 0;
+
+    // Current metrics
+    const currentConversions = (leadsPerMonth * closeRate) / 100;
+    const currentRevenue = currentConversions * customerValue;
+    const currentROI = currentAdSpend > 0 ? ((currentRevenue - currentAdSpend) / currentAdSpend) * 100 : 0;
+
+    // With ARI Solutions (more leads at better quality and lower cost)
+    const ariCostPerLead = costPerLead * 0.65; // 35% cheaper leads
+    const totalLeads = leadsPerMonth + additionalLeads;
+    const ariLeadCost = additionalLeads * ariCostPerLead;
+    const newAdSpend = currentAdSpend + ariLeadCost;
+    
+    // Better quality leads improve close rate by 30%
+    const improvedCloseRate = closeRate * 1.30;
+    const newConversions = (totalLeads * improvedCloseRate) / 100;
+    const newRevenue = newConversions * customerValue;
+    const newROI = newAdSpend > 0 ? ((newRevenue - newAdSpend) / newAdSpend) * 100 : 0;
+    const newCostPerLead = newAdSpend / totalLeads;
+
+    // Improvements
+    const additionalMonthlyRevenue = newRevenue - currentRevenue;
+    const additionalInvestment = ariLeadCost;
+    const annualAdditionalRevenue = additionalMonthlyRevenue * 12;
+    const annualInvestment = additionalInvestment * 12;
+    const netAnnualBenefit = annualAdditionalRevenue - annualInvestment;
+
+    return {
+      current: {
+        costPerLead,
+        closeRate,
+        conversions: currentConversions,
+        revenue: currentRevenue,
+        adSpend: currentAdSpend,
+        roi: currentROI,
+        totalLeads: leadsPerMonth
+      },
+      new: {
+        costPerLead: newCostPerLead,
+        closeRate: improvedCloseRate,
+        conversions: newConversions,
+        revenue: newRevenue,
+        adSpend: newAdSpend,
+        roi: newROI,
+        totalLeads: totalLeads
+      },
+      improvements: {
+        additionalMonthlyRevenue,
+        additionalInvestment,
+        annualAdditionalRevenue,
+        annualInvestment,
+        netAnnualBenefit,
+        additionalLeads,
+        additionalConversions: newConversions - currentConversions
+      }
+    };
+  };
+
+  const handleCalculate = () => {
+    setShowResults(true);
+  };
+
+  const results = showResults ? calculateROI() : null;
 
   const serviceJsonLd = {
     '@context': 'https://schema.org',
@@ -104,7 +161,7 @@ export default function LeadGenPage() {
         <JsonLd data={faqJsonLd} />
       </head>
 
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -127,7 +184,7 @@ export default function LeadGenPage() {
                   Schedule Free Consultation
                 </a>
               </Button>
-              <Button size="lg" variant="outline" className="border-gray-600 text-black hover:bg-gray-200" asChild>
+              <Button size="lg" variant="outline" className="border-gray-600 text-black hover:bg-gray-800 hover:text-white" asChild>
                 <Link href="/contact">
                   <Mail className="w-5 h-5 mr-2" />
                   Email Us
@@ -138,144 +195,337 @@ export default function LeadGenPage() {
         </div>
       </section>
 
-      {/* What Makes Us Different */}
+      {/* Value Proposition */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">What Makes Us Different?</h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            <Card>
-              <CardContent className="pt-6">
-                <Target className="w-10 h-10 text-teal-500 mb-3" />
-                <h3 className="font-semibold text-lg mb-2">Exclusive Leads</h3>
-                <p className="text-sm text-muted-foreground">
-                  No shared marketplaces. Every lead is exclusive to you, with full consent logs and contact details.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <Zap className="w-10 h-10 text-teal-500 mb-3" />
-                <h3 className="font-semibold text-lg mb-2">AI-Optimized</h3>
-                <p className="text-sm text-muted-foreground">
-                  We use AI to optimize ad copy, landing variants, lead scoring, and outreach sequencing for maximum conversion.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <BarChart3 className="w-10 h-10 text-teal-500 mb-3" />
-                <h3 className="font-semibold text-lg mb-2">Measurable Outcomes</h3>
-                <p className="text-sm text-muted-foreground">
-                  Track speed-to-lead, conversion rates, and ROI. Weekly reporting with transparent dashboards.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <Shield className="w-10 h-10 text-teal-500 mb-3" />
-                <h3 className="font-semibold text-lg mb-2">Compliance First</h3>
-                <p className="text-sm text-muted-foreground">
-                  TCPA, DNC, and consent logs ensure your sales team can safely use every lead we deliver.
-                </p>
-              </CardContent>
-            </Card>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">What Makes Us Different?</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card>
+                <CardHeader>
+                  <Target className="w-10 h-10 text-teal-500 mb-3" />
+                  <CardTitle>Exclusive Leads</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    No shared marketplaces. Every lead is exclusive to you, with full consent logs and contact details.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <Zap className="w-10 h-10 text-teal-500 mb-3" />
+                  <CardTitle>AI-Optimized</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    We use AI to optimize ad copy, landing variants, lead scoring, and outreach sequencing for maximum conversion.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <BarChart className="w-10 h-10 text-teal-500 mb-3" />
+                  <CardTitle>Measurable Outcomes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Track speed-to-lead, conversion rates, and ROI. Weekly reporting with transparent dashboards.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <Shield className="w-10 h-10 text-teal-500 mb-3" />
+                  <CardTitle>Compliance First</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    TCPA, DNC, and consent logs ensure your sales team can safely use every lead we deliver.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ROI Calculator */}
-      <section className="py-20 bg-muted/50">
+      {/* ROI Calculator Section */}
+      <section className="py-20 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-              <Badge className="mb-4">ROI Calculator</Badge>
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-teal-500 text-white">ROI Calculator</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">See Your Potential ROI</h2>
-              <p className="text-muted-foreground">
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Calculate how much more revenue you could generate with ARI Solutions bringing you more high-quality leads
               </p>
             </div>
 
-            <Card>
-              <CardContent className="p-6 space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
+            <Card className="shadow-2xl">
+              <CardContent className="p-8">
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
                   <div>
-                    <Label htmlFor="costPerLead">Current Cost Per Lead ($)</Label>
+                    <Label htmlFor="currentCostPerLead" className="text-base font-semibold mb-2 block">
+                      Current Cost Per Lead ($)
+                    </Label>
                     <Input
-                      id="costPerLead"
+                      id="currentCostPerLead"
                       type="number"
-                      value={costPerLead}
-                      onChange={(e) => setCostPerLead(Number(e.target.value))}
-                      className="mt-2"
+                      placeholder="150"
+                      value={calculatorInputs.currentCostPerLead}
+                      onChange={(e) => handleInputChange('currentCostPerLead', e.target.value)}
+                      className="text-lg h-12"
                     />
                   </div>
+
                   <div>
-                    <Label htmlFor="adSpend">Current Ad Spend / mo ($)</Label>
+                    <Label htmlFor="currentAdSpend" className="text-base font-semibold mb-2 block">
+                      Current Ad Spend / mo ($)
+                    </Label>
                     <Input
-                      id="adSpend"
+                      id="currentAdSpend"
                       type="number"
-                      value={adSpend}
-                      onChange={(e) => setAdSpend(Number(e.target.value))}
-                      className="mt-2"
+                      placeholder="7500"
+                      value={calculatorInputs.currentAdSpend}
+                      onChange={(e) => handleInputChange('currentAdSpend', e.target.value)}
+                      className="text-lg h-12"
                     />
                   </div>
+
                   <div>
-                    <Label htmlFor="leadToClose">Current Lead-to-Close Rate (%)</Label>
+                    <Label htmlFor="currentCloseRate" className="text-base font-semibold mb-2 block">
+                      Current Lead-to-Close Rate (%)
+                    </Label>
                     <Input
-                      id="leadToClose"
+                      id="currentCloseRate"
                       type="number"
-                      value={leadToClose}
-                      onChange={(e) => setLeadToClose(Number(e.target.value))}
-                      className="mt-2"
+                      placeholder="5"
+                      value={calculatorInputs.currentCloseRate}
+                      onChange={(e) => handleInputChange('currentCloseRate', e.target.value)}
+                      className="text-lg h-12"
                     />
                   </div>
+
                   <div>
-                    <Label htmlFor="customerValue">Average Customer Value ($)</Label>
+                    <Label htmlFor="avgCustomerValue" className="text-base font-semibold mb-2 block">
+                      Average Customer Value ($)
+                    </Label>
                     <Input
-                      id="customerValue"
+                      id="avgCustomerValue"
                       type="number"
-                      value={customerValue}
-                      onChange={(e) => setCustomerValue(Number(e.target.value))}
-                      className="mt-2"
+                      placeholder="5000"
+                      value={calculatorInputs.avgCustomerValue}
+                      onChange={(e) => handleInputChange('avgCustomerValue', e.target.value)}
+                      className="text-lg h-12"
                     />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="leadsPerMonth" className="text-base font-semibold mb-2 block">
+                      Current Leads Per Month
+                    </Label>
+                    <Input
+                      id="leadsPerMonth"
+                      type="number"
+                      placeholder="50"
+                      value={calculatorInputs.leadsPerMonth}
+                      onChange={(e) => handleInputChange('leadsPerMonth', e.target.value)}
+                      className="text-lg h-12"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="additionalLeads" className="text-base font-semibold mb-2 block">
+                      Additional Leads ARI Will Bring
+                    </Label>
+                    <Input
+                      id="additionalLeads"
+                      type="number"
+                      placeholder="30"
+                      value={calculatorInputs.additionalLeads}
+                      onChange={(e) => handleInputChange('additionalLeads', e.target.value)}
+                      className="text-lg h-12"
+                    />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      We bring more qualified leads at 35% lower cost with 30% better close rates
+                    </p>
                   </div>
                 </div>
 
-                <div className="bg-teal-500/10 border border-teal-500/20 p-4 rounded-lg">
-                  <p className="text-sm text-center text-muted-foreground mb-4">
-                    We bring more qualified leads at 35% lower cost with 30% better close rates
-                  </p>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div className="bg-background p-4 rounded-lg">
-                      <div className="text-xs text-muted-foreground mb-1">Current Leads Per Month</div>
-                      <div className="text-2xl font-bold">{currentLeads}</div>
-                    </div>
-                    <div className="bg-background p-4 rounded-lg">
-                      <div className="text-xs text-muted-foreground mb-1">Additional Leads ARI Will Bring</div>
-                      <div className="text-2xl font-bold text-teal-600">+{additionalLeads}</div>
-                    </div>
-                  </div>
-                </div>
+                <Button 
+                  onClick={handleCalculate} 
+                  size="lg" 
+                  className="w-full bg-teal-500 hover:bg-teal-600 text-lg h-14"
+                >
+                  <Calculator className="w-5 h-5 mr-2" />
+                  Calculate My ROI
+                </Button>
 
-                <div className="bg-gradient-to-r from-teal-500/20 to-teal-600/20 p-6 rounded-lg text-center">
-                  <div className="text-sm text-muted-foreground mb-2">Additional Monthly Revenue</div>
-                  <div className="text-4xl font-bold text-teal-600 mb-2">
-                    ${additionalRevenue.toLocaleString()}
+                {showResults && results && (
+                  <div className="mt-10 space-y-6 animate-in fade-in duration-500">
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-2">Your ROI Analysis</h3>
+                      <p className="text-muted-foreground">Here's how ARI Solutions can transform your lead generation</p>
+                    </div>
+
+                    {/* Comparison Grid */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Current State */}
+                      <Card className="bg-gray-50 dark:bg-slate-800 border-2">
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <TrendingDown className="w-5 h-5 text-red-500" />
+                            Current State
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Total Leads</span>
+                            <span className="font-bold">{results.current.totalLeads}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Cost Per Lead</span>
+                            <span className="font-bold">${results.current.costPerLead.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Close Rate</span>
+                            <span className="font-bold">{results.current.closeRate.toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Conversions/Month</span>
+                            <span className="font-bold">{results.current.conversions.toFixed(1)}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Monthly Ad Spend</span>
+                            <span className="font-bold">${results.current.adSpend.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b">
+                            <span className="text-muted-foreground">Monthly Revenue</span>
+                            <span className="font-bold">${results.current.revenue.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 bg-gray-100 dark:bg-slate-700 px-3 rounded">
+                            <span className="font-semibold">ROI</span>
+                            <span className="font-bold text-xl">{results.current.roi.toFixed(0)}%</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* With ARI Solutions */}
+                      <Card className="bg-teal-50 dark:bg-teal-950 border-2 border-teal-500">
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <TrendingUp className="w-5 h-5 text-teal-500" />
+                            With ARI Solutions
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Total Leads</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">
+                              {results.new.totalLeads}
+                              <span className="text-xs ml-1">(+{results.improvements.additionalLeads})</span>
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Avg Cost Per Lead</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">
+                              ${results.new.costPerLead.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Close Rate</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">
+                              {results.new.closeRate.toFixed(1)}%
+                              <span className="text-xs ml-1">(+30%)</span>
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Conversions/Month</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">
+                              {results.new.conversions.toFixed(1)}
+                              <span className="text-xs ml-1">(+{results.improvements.additionalConversions.toFixed(1)})</span>
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Monthly Ad Spend</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">${results.new.adSpend.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
+                            <span className="text-muted-foreground">Monthly Revenue</span>
+                            <span className="font-bold text-teal-600 dark:text-teal-400">${results.new.revenue.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 bg-teal-100 dark:bg-teal-900 px-3 rounded">
+                            <span className="font-semibold">ROI</span>
+                            <span className="font-bold text-xl text-teal-600 dark:text-teal-400">{results.new.roi.toFixed(0)}%</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Key Improvements */}
+                    <Card className="bg-gradient-to-br from-teal-500 to-teal-600 text-white">
+                      <CardHeader>
+                        <CardTitle className="text-2xl text-center">Your Projected Annual Benefit</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-3 gap-6 text-center">
+                          <div>
+                            <div className="text-4xl font-bold mb-2">
+                              ${results.improvements.additionalMonthlyRevenue.toLocaleString()}
+                            </div>
+                            <div className="text-teal-100">Additional Monthly Revenue</div>
+                          </div>
+                          <div>
+                            <div className="text-4xl font-bold mb-2">
+                              ${results.improvements.additionalInvestment.toLocaleString()}
+                            </div>
+                            <div className="text-teal-100">Additional Monthly Investment</div>
+                          </div>
+                          <div>
+                            <div className="text-5xl font-bold mb-2">
+                              ${results.improvements.netAnnualBenefit.toLocaleString()}
+                            </div>
+                            <div className="text-teal-100 font-semibold text-lg">Net Annual Benefit</div>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 pt-6 border-t border-teal-400 text-center">
+                          <p className="text-lg mb-1">
+                            <span className="font-bold text-2xl">+{results.improvements.additionalConversions.toFixed(0)}</span> more customers per month
+                          </p>
+                          <p className="text-teal-100 text-sm">
+                            From {results.improvements.additionalLeads} additional high-quality leads
+                          </p>
+                        </div>
+
+                        <div className="mt-8 text-center">
+                          <Button size="lg" className="bg-white text-teal-600 hover:bg-gray-100" asChild>
+                            <a href="https://calendly.com/arisolutionsinc/30min" target="_blank" rel="noopener noreferrer">
+                              <Calendar className="w-5 h-5 mr-2" />
+                              Book a Strategy Call Now
+                            </a>
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <div className="text-center text-sm text-muted-foreground">
+                      * Results based on typical client performance. ARI leads are 35% cheaper and convert 30% better due to AI-powered targeting and qualification.
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {roiIncrease}% ROI increase on your current ad spend
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* What We Deliver */}
-      <section className="py-20 bg-background">
+      {/* Services */}
+      <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">What We Deliver</h2>
@@ -283,120 +533,173 @@ export default function LeadGenPage() {
               Flexible service options to match your business needs
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle className="text-lg">Pilot Campaign</CardTitle>
-                <CardDescription>30-Day Pilot Campaign</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">Test our system risk-free with a refundable retainer</p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" />
-                    <span>Dedicated landing pages + address/serviceability checks</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" />
-                    <span>Paid search + programmatic SEO + trigger lists</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" />
-                    <span>Call tracking + OTP forms + SMS missed-call workflow</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" />
-                    <span>CRM integration (HubSpot/Salesforce/Sheets) + consent logs</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" />
-                    <span>Weekly performance reports and optimization</span>
-                  </li>
-                </ul>
-                <div className="pt-4 border-t">
-                  <p className="font-semibold text-sm">Refundable Retainer: $300–$500</p>
-                  <p className="text-xs text-muted-foreground mt-1">depending on territory size</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    If we fail to meet agreed targets in 30 days, full refund.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Ongoing Supply</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                <p>Continuous lead delivery with weekly billing and invalid lead replacements.</p>
-              </CardContent>
-            </Card>
+          <Tabs defaultValue="pilot" className="max-w-5xl mx-auto">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="pilot">Pilot Campaign</TabsTrigger>
+              <TabsTrigger value="ongoing">Ongoing Supply</TabsTrigger>
+              <TabsTrigger value="enrichment">AI Scoring</TabsTrigger>
+              <TabsTrigger value="pps">Book-and-Handoff</TabsTrigger>
+            </TabsList>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">AI Scoring</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                <p>Behavioral + firmographic ranking with smart lead assignment by intent and fit.</p>
-              </CardContent>
-            </Card>
+            <TabsContent value="pilot" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>30-Day Pilot Campaign</CardTitle>
+                  <CardDescription>Test our system risk-free with a refundable retainer</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    {[
+                      'Dedicated landing pages + address/serviceability checks',
+                      'Paid search + programmatic SEO + trigger lists',
+                      'Call tracking + OTP forms + SMS missed-call workflow',
+                      'CRM integration (HubSpot/Salesforce/Sheets) + consent logs',
+                      'Weekly performance reports and optimization'
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-muted p-4 rounded-lg">
+                    <p className="text-sm"><strong>Refundable Retainer:</strong> $300–$500 depending on territory size</p>
+                    <p className="text-sm mt-2">If we fail to meet agreed targets in 30 days, full refund.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Book-and-Handoff</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                <p>Pre-qualified prospects with calendar booking included and reminder sequences.</p>
-              </CardContent>
-            </Card>
-          </div>
+            <TabsContent value="ongoing" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ongoing Lead Supply</CardTitle>
+                  <CardDescription>Pay-per-lead or pay-per-show pricing</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    {[
+                      'Continuous lead generation with weekly deliveries',
+                      'Quality-checked and validated leads',
+                      'Replacement credits for invalid leads (< 10% invalid rate)',
+                      'Dashboard access with real-time metrics',
+                      'Speed-to-lead under 5 minutes'
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-muted p-4 rounded-lg space-y-2">
+                    <p className="text-sm"><strong>PPL (Qualified Lead):</strong> $60–$350 depending on vertical</p>
+                    <p className="text-sm"><strong>PPS (Kept Appointment):</strong> $120–$450 per show</p>
+                    <p className="text-sm mt-2 text-muted-foreground">Billed weekly with invoice CSV</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="enrichment" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Lead Enrichment & AI Scoring</CardTitle>
+                  <CardDescription>Prioritize your hottest prospects automatically</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    {[
+                      'Auto-enrich with firmographics and intent signals',
+                      'AI model-based lead scoring (behavioral + demographic)',
+                      'Route high-intent leads to priority reps',
+                      'NLP quality detection to flag junk responses',
+                      'Continuous model improvement from conversion data'
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="pps" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Book-and-Handoff (Pay Per Show)</CardTitle>
+                  <CardDescription>We book the appointment, you close the deal</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    {[
+                      'Warm handoffs directly to your calendar',
+                      'Pre-qualification questionnaire completed',
+                      'SMS and email confirmation to prospect',
+                      'Reminder sequence to ensure show-up',
+                      'Only pay for kept appointments'
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-muted p-4 rounded-lg">
+                    <p className="text-sm"><strong>Deposit:</strong> 50–70% upfront for scheduling capacity</p>
+                    <p className="text-sm mt-2"><strong>Price per kept appointment:</strong> $120–$450</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
-      {/* Industries We Serve */}
-      <section className="py-20 bg-muted/50">
+      {/* Target Verticals */}
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Industries We Serve</h2>
-            <p className="text-xl text-muted-foreground">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Industries We Serve</h2>
+            <p className="text-center text-muted-foreground mb-12 text-lg">
               Our lead gen systems work best for high-LTV B2B services
             </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {[
-              { title: 'Enterprise Connectivity', desc: 'ISPs, carrier sales, business internet' },
-              { title: 'MSPs & IT Services', desc: 'Managed services, cloud migration' },
-              { title: 'Healthcare Clinics', desc: 'Multi-location practices, med-spas' },
-              { title: 'Professional Services', desc: 'Legal, accounting, consulting' },
-              { title: 'Security & Compliance', desc: 'Cybersecurity, compliance audits' },
-              { title: 'B2B SaaS', desc: 'Software sales, procurement' }
-            ].map((industry, idx) => (
-              <Card key={idx}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{industry.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{industry.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { icon: Zap, name: 'Enterprise Connectivity', desc: 'ISPs, carrier sales, business internet' },
+                { icon: Database, name: 'MSPs & IT Services', desc: 'Managed services, cloud migration' },
+                { icon: Users, name: 'Healthcare Clinics', desc: 'Multi-location practices, med-spas' },
+                { icon: TrendingUp, name: 'Professional Services', desc: 'Legal, accounting, consulting' },
+                { icon: Shield, name: 'Security & Compliance', desc: 'Cybersecurity, compliance audits' },
+                { icon: BarChart, name: 'B2B SaaS', desc: 'Software sales, procurement' }
+              ].map((vertical, idx) => (
+                <Card key={idx} className="text-center">
+                  <CardContent className="pt-6">
+                    <vertical.icon className="w-10 h-10 text-teal-500 mx-auto mb-3" />
+                    <h3 className="font-semibold mb-2">{vertical.name}</h3>
+                    <p className="text-sm text-muted-foreground">{vertical.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Pricing Models */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Flexible Pricing Models</h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Choose the pricing structure that fits your cash flow
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <Card className="border-2">
+            <Card>
               <CardHeader>
                 <Badge className="w-fit mb-2">Best for Testing</Badge>
                 <CardTitle>Pilot + PPL</CardTitle>
@@ -404,12 +707,12 @@ export default function LeadGenPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <div className="text-3xl font-bold">$300-500</div>
-                  <div className="text-sm text-muted-foreground">Refundable retainer</div>
+                  <div className="text-3xl font-bold mb-1">$300-500</div>
+                  <p className="text-sm text-muted-foreground">Refundable retainer</p>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold">$60-$350</div>
-                  <div className="text-sm text-muted-foreground">Per qualified lead</div>
+                <div className="border-t pt-4">
+                  <div className="text-2xl font-bold mb-1">$60-$350</div>
+                  <p className="text-sm text-muted-foreground">Per qualified lead</p>
                 </div>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
@@ -428,22 +731,20 @@ export default function LeadGenPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-4 border-teal-500 relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-teal-500">Most Popular</Badge>
-              </div>
+            <Card className="border-2 border-primary">
               <CardHeader>
+                <Badge className="w-fit mb-2 bg-primary">Most Popular</Badge>
                 <CardTitle>Pay Per Show</CardTitle>
                 <CardDescription>Only pay for kept appointments</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <div className="text-3xl font-bold">60% Deposit</div>
-                  <div className="text-sm text-muted-foreground">Reserve capacity</div>
+                  <div className="text-3xl font-bold mb-1">60% Deposit</div>
+                  <p className="text-sm text-muted-foreground">Reserve capacity</p>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold">$120-$450</div>
-                  <div className="text-sm text-muted-foreground">Per kept appointment</div>
+                <div className="border-t pt-4">
+                  <div className="text-2xl font-bold mb-1">$120-$450</div>
+                  <p className="text-sm text-muted-foreground">Per kept appointment</p>
                 </div>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
@@ -462,7 +763,7 @@ export default function LeadGenPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-2">
+            <Card>
               <CardHeader>
                 <Badge className="w-fit mb-2">Enterprise</Badge>
                 <CardTitle>Hybrid / Subscription</CardTitle>
@@ -470,12 +771,12 @@ export default function LeadGenPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <div className="text-3xl font-bold">$1.5k-$3k</div>
-                  <div className="text-sm text-muted-foreground">Monthly base fee</div>
+                  <div className="text-3xl font-bold mb-1">$1.5k-$3k</div>
+                  <p className="text-sm text-muted-foreground">Monthly base fee</p>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold">$35-$120</div>
-                  <div className="text-sm text-muted-foreground">Reduced per lead</div>
+                <div className="border-t pt-4">
+                  <div className="text-2xl font-bold mb-1">$35-$120</div>
+                  <p className="text-sm text-muted-foreground">Reduced per lead</p>
                 </div>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
@@ -497,103 +798,111 @@ export default function LeadGenPage() {
         </div>
       </section>
 
-      {/* Powered by AI & Modern Tech */}
-      <section className="py-20 bg-muted/50">
+      {/* Tech Stack & AI */}
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Powered by AI & Modern Tech</h2>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle>AI Use Cases</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <h4 className="font-semibold mb-1">Ad Copy Generation</h4>
-                  <p className="text-sm text-muted-foreground">Rapid hypothesis creation and A/B testing</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Lead Scoring</h4>
-                  <p className="text-sm text-muted-foreground">Behavioral + firmographic ranking</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Auto Routing</h4>
-                  <p className="text-sm text-muted-foreground">Smart lead assignment by intent and fit</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Quality Detection</h4>
-                  <p className="text-sm text-muted-foreground">NLP checks for junk/bot responses</p>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Powered by AI & Modern Tech</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI Use Cases</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <Zap className="w-5 h-5 text-teal-500 flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="font-semibold">Ad Copy Generation</p>
+                      <p className="text-sm text-muted-foreground">Rapid hypothesis creation and A/B testing</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Filter className="w-5 h-5 text-teal-500 flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="font-semibold">Lead Scoring</p>
+                      <p className="text-sm text-muted-foreground">Behavioral + firmographic ranking</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <TrendingUp className="w-5 h-5 text-teal-500 flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="font-semibold">Auto Routing</p>
+                      <p className="text-sm text-muted-foreground">Smart lead assignment by intent and fit</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-teal-500 flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="font-semibold">Quality Detection</p>
+                      <p className="text-sm text-muted-foreground">NLP checks for junk/bot responses</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Compliance & Security</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <h4 className="font-semibold mb-1">TCPA Compliance</h4>
-                  <p className="text-sm text-muted-foreground">Consent logs, DNC hygiene, STOP opt-out</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Data Security</h4>
-                  <p className="text-sm text-muted-foreground">TLS, RBAC, audit logs, encryption at rest</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Data Retention</h4>
-                  <p className="text-sm text-muted-foreground">18 months configurable, DPA templates</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Transparent Tracking</h4>
-                  <p className="text-sm text-muted-foreground">IP, timestamp, user agent, consent checkbox</p>
-                </div>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Compliance & Security</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <Lock className="w-5 h-5 text-teal-500 flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="font-semibold">TCPA Compliance</p>
+                      <p className="text-sm text-muted-foreground">Consent logs, DNC hygiene, STOP opt-out</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-teal-500 flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="font-semibold">Data Security</p>
+                      <p className="text-sm text-muted-foreground">TLS, RBAC, audit logs, encryption at rest</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Database className="w-5 h-5 text-teal-500 flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="font-semibold">Data Retention</p>
+                      <p className="text-sm text-muted-foreground">18 months configurable, DPA templates</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-teal-500 flex-shrink-0 mt-1" />
+                    <div>
+                      <p className="font-semibold">Transparent Tracking</p>
+                      <p className="text-sm text-muted-foreground">IP, timestamp, user agent, consent checkbox</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Case Study */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <Card>
-              <div className="bg-gradient-to-r from-teal-500/10 to-teal-600/10 p-6 border-b">
-                <Badge className="mb-2">Case Study</Badge>
-                <h3 className="text-2xl font-bold">Tech Solutions Inc. — B2B SaaS</h3>
-              </div>
-              <CardContent className="p-6 space-y-6">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                      <Star className="w-6 h-6 text-primary fill-primary" />
-                    </div>
+            <Card className="bg-gradient-to-br from-teal-500/10 to-teal-600/10 border-teal-500/20">
+              <CardContent className="p-8">
+                <Badge className="mb-4">Case Study</Badge>
+                <h3 className="text-2xl font-bold mb-4">Tech Solutions Inc. — B2B SaaS</h3>
+                <p className="text-lg mb-6 italic">
+                  "Our sales team went from feast or famine to a consistent pipeline. Game changer for our business."
+                </p>
+                <div className="grid grid-cols-3 gap-6">
+                  <div>
+                    <div className="text-3xl font-bold text-teal-600">127</div>
+                    <div className="text-sm text-muted-foreground">Qualified Leads (90 days)</div>
                   </div>
                   <div>
-                    <p className="text-lg italic mb-3">
-                      "Our sales team went from feast or famine to a consistent pipeline. Game changer for our business."
-                    </p>
+                    <div className="text-3xl font-bold text-teal-600">8.5%</div>
+                    <div className="text-sm text-muted-foreground">Conversion Rate</div>
                   </div>
-                </div>
-
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <div className="text-3xl font-bold text-teal-600 mb-1">127</div>
-                    <div className="text-xs text-muted-foreground">Qualified Leads (90 days)</div>
-                  </div>
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <div className="text-3xl font-bold text-teal-600 mb-1">8.5%</div>
-                    <div className="text-xs text-muted-foreground">Conversion Rate</div>
-                  </div>
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <div className="text-3xl font-bold text-teal-600 mb-1">412%</div>
-                    <div className="text-xs text-muted-foreground">ROI</div>
-                  </div>
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <div className="text-3xl font-bold text-teal-600 mb-1">&lt;4 hrs</div>
-                    <div className="text-xs text-muted-foreground">Speed to Lead</div>
+                  <div>
+                    <div className="text-3xl font-bold text-teal-600">412%</div>
+                    <div className="text-sm text-muted-foreground">ROI</div>
                   </div>
                 </div>
               </CardContent>
@@ -625,7 +934,9 @@ export default function LeadGenPage() {
               </a>
             </Button>
           </div>
-          <p className="text-sm mt-4 opacity-75">Typical response time: Within 24 hours</p>
+          <p className="mt-6 text-sm opacity-75">
+            Typical response time: Within 24 hours
+          </p>
         </div>
       </section>
 
