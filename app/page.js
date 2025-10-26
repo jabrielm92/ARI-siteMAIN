@@ -1,14 +1,18 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
 import CourseCard from '@/components/course-card';
 import TestimonialCarousel from '@/components/testimonial-carousel';
-import { ArrowRight, CheckCircle2, Zap, Target, TrendingUp } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Zap, Target, TrendingUp, Calculator, BarChart3, Users, Briefcase, Lock } from 'lucide-react';
 import { coursesData, servicesData, testimonialsData } from '@/lib/courses-data';
 
 export default function App() {
