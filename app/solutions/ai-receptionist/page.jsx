@@ -270,11 +270,11 @@ export default function AIReceptionistPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-3 border-b">
                     <span className="text-lg font-semibold">Setup & Training</span>
-                    <span className="text-2xl font-bold">$797</span>
+                    <span className="text-2xl font-bold">$1050</span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b">
                     <span className="text-lg font-semibold">Monthly Subscription</span>
-                    <span className="text-2xl font-bold">$197/mo</span>
+                    <span className="text-2xl font-bold">$750/mo</span>
                   </div>
                 </div>
 
