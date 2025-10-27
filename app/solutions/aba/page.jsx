@@ -188,11 +188,11 @@ export default function ABAPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-3 border-b">
                     <span className="text-lg font-semibold">Setup Fee</span>
-                    <span className="text-2xl font-bold">$497</span>
+                    <span className="text-2xl font-bold">$650</span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-b">
                     <span className="text-lg font-semibold">Monthly Retainer</span>
-                    <span className="text-2xl font-bold">$97/mo</span>
+                    <span className="text-2xl font-bold">$350/mo</span>
                   </div>
                 </div>
 
